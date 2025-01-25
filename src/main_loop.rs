@@ -11,6 +11,7 @@ use winit::keyboard::{KeyCode, PhysicalKey};
 use winit::window::Window;
 
 const TIMESTEP: Duration = Duration::from_millis(10);
+const GRAVITY: Vec2 = vec2(0.0, -1.0);
 
 pub struct Player {
     pub pos: Vec2,
@@ -19,7 +20,7 @@ pub struct Player {
 
 impl Player {
     fn update(&mut self, level: &Level) {
-        let new_pos = self.pos + self.vel;
+        let new_pos = self.pos + (self.vel + GRAVITY);
         if level.is_hit(new_pos.as_uvec2()) {
             self.vel = Vec2::ZERO;
         } else {
@@ -87,6 +88,8 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
     let mut delta_timer = DeltaTimer::default();
     let mut left_pressed = false;
     let mut right_pressed = false;
+    let mut old_jump_pressed = false;
+    let mut jump_pressed = false;
     let mut time_sum = Duration::ZERO;
     event_loop.run(|event, target| match event {
         Event::WindowEvent {
@@ -99,6 +102,9 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
                 }
                 PhysicalKey::Code(KeyCode::KeyD) => {
                     right_pressed = event.state == ElementState::Pressed;
+                }
+                PhysicalKey::Code(KeyCode::Space) => {
+                    jump_pressed = event.state == ElementState::Pressed;
                 }
                 PhysicalKey::Code(KeyCode::Escape) => {
                     target.exit();
@@ -122,13 +128,21 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
                     time_sum = new;
 
                     if left_pressed {
-                        player.vel.x -= 0.01;
+                        player.vel.x = -5.5;
                     } else if right_pressed {
-                        player.vel.x += 0.01;
+                        player.vel.x = 5.5;
                     } else {
-                        player.vel.x *= 0.5;
+                        player.vel.x *= 0.8;
                     }
+
+                    if jump_pressed && !old_jump_pressed {
+                        player.vel.y = 10.0;
+                    } else {
+                        player.vel.y *= 0.8;
+                    }
+
                     player.update(level);
+                    old_jump_pressed = jump_pressed;
                 }
 
                 // UPDATE CODE
