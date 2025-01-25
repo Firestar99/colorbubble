@@ -36,12 +36,16 @@ pub struct Bubble {
 
 impl Bubble {
     fn update(&mut self, level: &Level) {
-        let new_pos = self.pos + (self.vel + GRAVITY);
+        let new_pos = self.pos + self.vel;
         if level.is_hit(new_pos.as_uvec2()) {
-            self.vel = Vec2::ZERO;
+            self.pop();
         } else {
             self.pos = new_pos;
         }
+    }
+
+    fn pop(&mut self) {
+        // todo
     }
 }
 
@@ -57,7 +61,7 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
 
     dbg!(&level.entry_point);
 
-    let mut bubble = None;
+    let mut bubble: Option<Bubble> = None;
 
     let mut size = window.inner_size();
     size.width = size.width.max(1);
@@ -108,6 +112,8 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
     let mut right_pressed = false;
     let mut old_jump_pressed = false;
     let mut jump_pressed = false;
+    let mut old_bubble_spawn_pressed = false;
+    let mut bubble_spawn_pressed = false;
     let mut time_sum = Duration::ZERO;
     let mut pointed_right = true; // false = pointed left
     event_loop.run(|event, target| match event {
@@ -132,6 +138,9 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
                     }
                     PhysicalKey::Code(KeyCode::Space) => {
                         jump_pressed = pressed;
+                    }
+                    PhysicalKey::Code(KeyCode::ShiftLeft | KeyCode::ShiftRight) => {
+                        bubble_spawn_pressed = pressed;
                     }
                     PhysicalKey::Code(KeyCode::Escape) => {
                         target.exit();
@@ -169,8 +178,28 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
                         player.vel.y *= 0.8;
                     }
 
+                    if bubble_spawn_pressed && !bubble_spawn_pressed {
+                        if let Some(bubble) = &mut bubble {
+                            bubble.pop();
+                        }
+
+                        bubble = Some(Bubble {
+                            pos: player.pos,
+                            vel: if pointed_right {
+                                vec2(10.0, 0.0)
+                            } else {
+                                vec2(-10.0, 0.0)
+                            },
+                        });
+                    }
+
                     player.update(level);
+                    if let Some(bubble) = &mut bubble {
+                        bubble.update(level);
+                    }
+
                     old_jump_pressed = jump_pressed;
+                    old_bubble_spawn_pressed = bubble_spawn_pressed;
                 }
 
                 // UPDATE CODE
