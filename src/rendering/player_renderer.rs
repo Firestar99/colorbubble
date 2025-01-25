@@ -42,9 +42,7 @@ impl PlayerRenderer {
             cache: None,
         });
 
-        Self {
-            render_pipeline,
-        }
+        Self { render_pipeline }
     }
 
     pub fn draw(&self, _config: &RenderConfig, rpass: &mut RenderPass) {

@@ -1,5 +1,5 @@
-use winit::event_loop::EventLoop;
 use colorbubble::main_loop::run;
+use winit::event_loop::EventLoop;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub fn main() -> anyhow::Result<()> {
