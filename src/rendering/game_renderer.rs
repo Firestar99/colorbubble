@@ -4,6 +4,7 @@ use crate::rendering::framedata::{
 };
 use crate::rendering::player_renderer::PlayerRenderer;
 use crate::rendering::quad::QuadRenderer;
+use crate::rendering::quad_texture::QuadTextureBindGroupLayout;
 use wgpu::{Device, Queue, TextureFormat, TextureView};
 
 #[derive(Debug, Clone)]
@@ -23,7 +24,8 @@ pub struct GameRenderer {
 impl GameRenderer {
     pub fn new(config: &RenderConfig) -> Self {
         let frame_data_layout = FrameDataBindGroupLayout::new(config);
-        let quad = QuadRenderer::new(config, &frame_data_layout);
+        let quad_texture_layout = QuadTextureBindGroupLayout::new(config);
+        let quad = QuadRenderer::new(config, &frame_data_layout, &quad_texture_layout);
         Self {
             player: PlayerRenderer::new(quad.clone()),
             frame_data_layout,

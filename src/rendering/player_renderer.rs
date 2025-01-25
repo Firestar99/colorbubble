@@ -3,7 +3,7 @@ use crate::{
     main_loop::Player,
     rendering::quad::{QuadRenderer, QuadVertex, QuadVertexBuffer},
 };
-use glam::vec2;
+use glam::{vec2, vec4};
 use wgpu::RenderPass;
 
 pub struct PlayerRenderer(QuadRenderer);
@@ -15,27 +15,31 @@ impl PlayerRenderer {
 
     pub fn draw(&self, rpass: &mut RenderPass, frame_data: &FrameDataBinding, player: &Player) {
         let size = vec2(28., 28.);
-        self.0.draw(
+        self.0.draw_color(
             rpass,
             frame_data,
-            QuadVertexBuffer::new(
+            &QuadVertexBuffer::new(
                 &self.0.config,
                 &[
                     QuadVertex {
                         position: vec2(0., 0.) * size + player.pos,
                         tex_coord: vec2(0., 0.),
+                        vtx_color: vec4(0., 0., 0., 1.),
                     },
                     QuadVertex {
                         position: vec2(0., 1.) * size + player.pos,
                         tex_coord: vec2(0., 1.),
+                        vtx_color: vec4(0., 1., 0., 1.),
                     },
                     QuadVertex {
                         position: vec2(1., 0.) * size + player.pos,
                         tex_coord: vec2(1., 0.),
+                        vtx_color: vec4(1., 0., 0., 1.),
                     },
                     QuadVertex {
                         position: vec2(1., 1.) * size + player.pos,
                         tex_coord: vec2(1., 1.),
+                        vtx_color: vec4(1., 1., 0., 1.),
                     },
                 ],
             ),

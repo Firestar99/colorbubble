@@ -1,5 +1,6 @@
 struct VertexOutput {
     @location(0) tex_coord: vec2<f32>,
+    @location(1) vtx_color: vec4<f32>,
     @builtin(position) position: vec4<f32>,
 };
 
@@ -15,21 +16,29 @@ var<uniform> frame_data: FrameData;
 fn vs_main(
     @location(0) position: vec2<f32>,
     @location(1) tex_coord: vec2<f32>,
+    @location(2) vtx_color: vec4<f32>,
 ) -> VertexOutput {
     var result: VertexOutput;
     result.tex_coord = tex_coord;
     result.position = vec4(position * frame_data.viewport.zw + frame_data.viewport.xy, 0., 1.);
+    result.vtx_color = vtx_color;
     return result;
 }
 
-//@group(0)
-//@binding(1)
-//var r_color: texture_2d<u32>;
+@fragment
+fn fs_color(vertex: VertexOutput) -> @location(0) vec4<f32> {
+	return vertex.vtx_color;
+}
+
+@group(1)
+@binding(1)
+var my_texture: texture_2d<f32>;
+
+@group(1)
+@binding(2)
+var my_sampler: sampler;
 
 @fragment
-fn fs_main(vertex: VertexOutput) -> @location(0) vec4<f32> {
-//    let tex = textureLoad(r_color, vec2<i32>(vertex.tex_coord), 0);
-//    let v = f32(tex.x) / 255.0;
-//    return vec4<f32>(1.0 - (v * 5.0), 1.0 - (v * 15.0), 1.0 - (v * 50.0), 1.0);
-	return vec4(vertex.tex_coord, 0., 1.);
+fn fs_texture(vertex: VertexOutput) -> @location(0) vec4<f32> {
+	return textureSample(my_texture, my_sampler, vertex.tex_coord) * vertex.vtx_color;
 }
