@@ -23,7 +23,7 @@ impl LevelRenderer {
     }
 
     pub fn load_level(&mut self, level: Arc<Level>) {
-        let size_half = level.size.as_vec2() * 0.5;
+        let size_half = level.size.as_vec2();
         let vertices = QuadVertexBuffer::new(
             &self.quad.config,
             &[
