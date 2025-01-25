@@ -1,3 +1,4 @@
+use crate::rendering::framedata::{FrameDataBindGroupLayout, FrameDataBinding};
 use crate::rendering::game_renderer::RenderConfig;
 use bytemuck::{Pod, Zeroable};
 use std::borrow::Cow;
@@ -49,7 +50,7 @@ pub struct QuadRenderer {
 }
 
 impl QuadRenderer {
-    pub fn new(config: &RenderConfig) -> Self {
+    pub fn new(config: &RenderConfig, frame_data_layout: &FrameDataBindGroupLayout) -> Self {
         let device = &config.device;
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: None,
@@ -58,7 +59,7 @@ impl QuadRenderer {
 
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: None,
-            bind_group_layouts: &[],
+            bind_group_layouts: &[&frame_data_layout.layout],
             push_constant_ranges: &[],
         });
 
@@ -115,10 +116,16 @@ impl QuadRenderer {
         }
     }
 
-    pub fn draw(&self, rpass: &mut RenderPass, vertices: QuadVertexBuffer) {
+    pub fn draw(
+        &self,
+        rpass: &mut RenderPass,
+        frame_data: &FrameDataBinding,
+        vertices: QuadVertexBuffer,
+    ) {
         rpass.set_pipeline(&self.render_pipeline);
         rpass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
         rpass.set_vertex_buffer(0, vertices.buffer.slice(..));
+        rpass.set_bind_group(0, Some(&frame_data.0), &[]);
         rpass.draw_indexed(0..vertices.len() / 4 * 6, 0, 0..1);
     }
 }

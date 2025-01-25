@@ -65,4 +65,8 @@ impl Level {
     pub fn is_hit(&self, pos: UVec2) -> bool {
         self.collision_map.get_pixel(pos.x, pos.y) == &COLLISION
     }
+
+    pub fn extent(&self) -> UVec2 {
+        UVec2::new(self.collision_map.width(), self.collision_map.height())
+    }
 }

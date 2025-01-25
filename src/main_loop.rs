@@ -76,7 +76,7 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
         .unwrap();
     surface.configure(&device, &config);
 
-    let renderer = GameRenderer::new(RenderConfig {
+    let renderer = GameRenderer::new(&RenderConfig {
         device: device.clone(),
         queue,
         swapchain_format: surface.get_capabilities(&adapter).formats[0],

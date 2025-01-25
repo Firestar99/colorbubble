@@ -3,9 +3,13 @@ struct VertexOutput {
     @builtin(position) position: vec4<f32>,
 };
 
-//@group(0)
-//@binding(0)
-//var<uniform> transform: mat4x4<f32>;
+struct FrameData {
+	viewport: vec4<f32>,
+};
+
+@group(0)
+@binding(0)
+var<uniform> frame_data: FrameData;
 
 @vertex
 fn vs_main(
@@ -14,7 +18,7 @@ fn vs_main(
 ) -> VertexOutput {
     var result: VertexOutput;
     result.tex_coord = tex_coord;
-    result.position = vec4(position, 0., 1.);
+    result.position = vec4(position * frame_data.viewport.zw + frame_data.viewport.xy, 0., 1.);
     return result;
 }
 
