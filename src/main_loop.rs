@@ -30,7 +30,7 @@ impl Player {
 }
 
 pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()> {
-    let levels = Level::load_from_disk();
+    let levels = Level::load_file_tree()?;
     let current_level_idx = 0;
     let level = &levels[current_level_idx];
 
