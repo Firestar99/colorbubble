@@ -1,7 +1,9 @@
+use crate::level::Level;
 use crate::main_loop::Player;
 use crate::rendering::framedata::{
     get_viewport, FrameData, FrameDataBindGroupLayout, VIEWPORT_SIZE,
 };
+use crate::rendering::level_renderer::LevelRenderer;
 use crate::rendering::player_renderer::PlayerRenderer;
 use crate::rendering::quad::QuadRenderer;
 use crate::rendering::quad_texture::QuadTextureBindGroupLayout;
@@ -15,20 +17,20 @@ pub struct RenderConfig {
 }
 
 pub struct GameRenderer {
-    config: RenderConfig,
-    frame_data_layout: FrameDataBindGroupLayout,
-    quad: QuadRenderer,
-    player: PlayerRenderer,
+    pub config: RenderConfig,
+    pub quad: QuadRenderer,
+    pub player: PlayerRenderer,
+    pub level: LevelRenderer,
 }
 
 impl GameRenderer {
     pub fn new(config: &RenderConfig) -> Self {
         let frame_data_layout = FrameDataBindGroupLayout::new(config);
         let quad_texture_layout = QuadTextureBindGroupLayout::new(config);
-        let quad = QuadRenderer::new(config, &frame_data_layout, &quad_texture_layout);
+        let quad = QuadRenderer::new(config, frame_data_layout, quad_texture_layout);
         Self {
             player: PlayerRenderer::new(quad.clone()),
-            frame_data_layout,
+            level: LevelRenderer::new(quad.clone()),
             quad,
             config: config.clone(),
         }
@@ -55,9 +57,10 @@ impl GameRenderer {
                 occlusion_query_set: None,
             });
 
-            let frame_data = self.frame_data_layout.create_bind_group(FrameData {
+            let frame_data = self.quad.frame_data_layout.create_bind_group(FrameData {
                 viewport: get_viewport(VIEWPORT_SIZE.as_uvec2(), player.pos),
             });
+            self.level.draw(&mut rpass, &frame_data);
             self.player.draw(&mut rpass, &frame_data, &player);
         }
 

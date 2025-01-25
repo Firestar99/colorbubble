@@ -21,11 +21,13 @@ pub fn get_viewport(level_size: UVec2, player: Vec2) -> Vec4 {
     Vec4::from((position, 1. / VIEWPORT_SIZE))
 }
 
+#[derive(Debug, Clone)]
 pub struct FrameDataBindGroupLayout {
     pub config: RenderConfig,
     pub layout: BindGroupLayout,
 }
 
+#[derive(Debug, Clone)]
 pub struct FrameDataBinding(pub BindGroup);
 
 impl FrameDataBindGroupLayout {

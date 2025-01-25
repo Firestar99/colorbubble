@@ -47,6 +47,8 @@ impl QuadVertexBuffer {
 #[derive(Debug, Clone)]
 pub struct QuadRenderer {
     pub config: RenderConfig,
+    pub frame_data_layout: FrameDataBindGroupLayout,
+    pub texture_layout: QuadTextureBindGroupLayout,
     color_pipeline: RenderPipeline,
     texture_pipeline: RenderPipeline,
     index_buffer: Buffer,
@@ -55,8 +57,8 @@ pub struct QuadRenderer {
 impl QuadRenderer {
     pub fn new(
         config: &RenderConfig,
-        frame_data_layout: &FrameDataBindGroupLayout,
-        texture_layout: &QuadTextureBindGroupLayout,
+        frame_data_layout: FrameDataBindGroupLayout,
+        texture_layout: QuadTextureBindGroupLayout,
     ) -> Self {
         let device = &config.device;
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
@@ -148,6 +150,8 @@ impl QuadRenderer {
 
         Self {
             config: config.clone(),
+            frame_data_layout,
+            texture_layout,
             color_pipeline,
             texture_pipeline,
             index_buffer,

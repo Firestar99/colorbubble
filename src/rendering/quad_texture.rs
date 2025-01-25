@@ -8,6 +8,7 @@ use wgpu::{
     TextureFormat, TextureSampleType, TextureUsages, TextureViewDescriptor, TextureViewDimension,
 };
 
+#[derive(Debug, Clone)]
 pub struct QuadTextureBindGroupLayout {
     pub layout: BindGroupLayout,
     pub sampler: Sampler,
@@ -48,13 +49,14 @@ impl QuadTextureBindGroupLayout {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct QuadTexture(pub BindGroup);
 
 impl QuadTexture {
     pub fn upload(
         config: &RenderConfig,
         layout: &QuadTextureBindGroupLayout,
-        image: RgbaImage,
+        image: &RgbaImage,
     ) -> Self {
         let device = &config.device;
         let texture = device.create_texture_with_data(
