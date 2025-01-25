@@ -49,10 +49,10 @@ impl Level {
     pub fn load_file_tree() -> anyhow::Result<Vec<Arc<Level>>> {
         let mut levl_prths: Vec<_> = fs::read_dir("levels")?.map(|e| e.unwrap().path()).collect();
         levl_prths.sort();
-        Ok(levl_prths
+        levl_prths
             .iter()
-            .map(|a| Self::load_from_file(&a))
-            .collect::<Result<Vec<_>, _>>()?)
+            .map(|a| Self::load_from_file(a))
+            .collect::<Result<Vec<_>, _>>()
     }
 
     pub fn collision_rect(&self, rect: Rect) -> bool {

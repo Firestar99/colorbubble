@@ -1,5 +1,5 @@
-use crate::level::Level;
-use crate::main_loop::Player;
+use super::particle_renderer::ParticleRenderer;
+use crate::main_loop::{ParticleRenderData, Player};
 use crate::rendering::framedata::{
     get_viewport, FrameData, FrameDataBindGroupLayout, VIEWPORT_SIZE,
 };
@@ -20,6 +20,7 @@ pub struct GameRenderer {
     pub config: RenderConfig,
     pub quad: QuadRenderer,
     pub player: PlayerRenderer,
+    pub particle: ParticleRenderer,
     pub level: LevelRenderer,
 }
 
@@ -31,12 +32,18 @@ impl GameRenderer {
         Self {
             player: PlayerRenderer::new(quad.clone()),
             level: LevelRenderer::new(quad.clone()),
+            particle: ParticleRenderer::new(quad.clone()),
             quad,
             config: config.clone(),
         }
     }
 
-    pub fn draw(&self, player: &Player, output: TextureView) {
+    pub fn draw<'a>(
+        &self,
+        player: &Player,
+        particles: impl Iterator<Item = ParticleRenderData<'a>>,
+        output: TextureView,
+    ) {
         let device = &self.config.device;
         let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("main draw"),
@@ -61,7 +68,10 @@ impl GameRenderer {
                 viewport: get_viewport(VIEWPORT_SIZE.as_uvec2(), player.pos),
             });
             self.level.draw(&mut rpass, &frame_data);
-            self.player.draw(&mut rpass, &frame_data, &player);
+            self.player.draw(&mut rpass, &frame_data, player);
+            for particle in particles {
+                self.particle.draw(&mut rpass, &frame_data, particle);
+            }
         }
 
         self.config.queue.submit(Some(encoder.finish()));

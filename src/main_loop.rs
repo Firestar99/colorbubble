@@ -3,6 +3,7 @@ use std::time::Duration;
 use crate::delta_time::DeltaTimer;
 use crate::level::Level;
 use crate::rendering::game_renderer::{GameRenderer, RenderConfig};
+use crate::rendering::quad_texture::QuadTexture;
 use anyhow::Context;
 use glam::{vec2, Vec2};
 use winit::event::{ElementState, Event, WindowEvent};
@@ -35,18 +36,41 @@ pub struct Bubble {
 }
 
 impl Bubble {
-    fn update(&mut self, level: &Level) {
+    fn update(&mut self, level: &Level, particles: &mut Vec<Particle>) {
         let new_pos = self.pos + self.vel;
         if level.is_hit(new_pos.as_uvec2()) {
-            self.pop();
+            self.pop(particles);
         } else {
             self.pos = new_pos;
         }
     }
 
-    fn pop(&mut self) {
-        // todo
+    fn pop(&mut self, particles: &mut Vec<Particle>) {
+        for i in 0..5 {
+            particles.push(Particle {
+                pos: self.pos,
+                vel: Vec2::from_angle(i as f32),
+            });
+        }
     }
+}
+
+pub struct Particle {
+    pub pos: Vec2,
+    vel: Vec2,
+}
+
+impl Particle {
+    // returns true if collided
+    fn update(&mut self, level: &Level) -> bool {
+        self.pos += self.vel;
+        level.is_hit(self.pos.as_uvec2())
+    }
+}
+
+pub struct ParticleRenderData<'a> {
+    pub pos: Vec2,
+    pub img: &'a QuadTexture,
 }
 
 pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()> {
@@ -62,6 +86,7 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
     dbg!(&level.entry_point);
 
     let mut bubble: Option<Bubble> = None;
+    let mut particles: Vec<Particle> = vec![];
 
     let mut size = window.inner_size();
     size.width = size.width.max(1);
@@ -107,6 +132,8 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
         swapchain_format: surface.get_capabilities(&adapter).formats[0],
     });
     renderer.level.load_level(level.clone());
+    let bubble_texture = renderer.particle.load_texture("assets/bubble.png");
+    let particle_texture = renderer.particle.load_texture("assets/Splash.png");
 
     let mut delta_timer = DeltaTimer::default();
     let mut left_pressed = false;
@@ -179,9 +206,9 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
                         player.vel.y *= 0.8;
                     }
 
-                    if bubble_spawn_pressed && !bubble_spawn_pressed {
+                    if bubble_spawn_pressed && !old_bubble_spawn_pressed {
                         if let Some(bubble) = &mut bubble {
-                            bubble.pop();
+                            bubble.pop(&mut particles);
                         }
 
                         bubble = Some(Bubble {
@@ -196,7 +223,18 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
 
                     player.update(level);
                     if let Some(bubble) = &mut bubble {
-                        bubble.update(level);
+                        bubble.update(level, &mut particles);
+                    }
+
+                    let mut remove = Vec::new();
+                    for (i, particle) in particles.iter_mut().enumerate() {
+                        if particle.update(level) {
+                            remove.push(i);
+                        }
+                    }
+
+                    for i in remove.into_iter().rev() {
+                        particles.remove(i);
                     }
 
                     old_jump_pressed = jump_pressed;
@@ -211,7 +249,20 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
                 let view = frame
                     .texture
                     .create_view(&wgpu::TextureViewDescriptor::default());
-                renderer.draw(&player, view);
+                renderer.draw(
+                    &player,
+                    bubble
+                        .iter()
+                        .map(|bubble| ParticleRenderData {
+                            pos: bubble.pos,
+                            img: &bubble_texture,
+                        })
+                        .chain(particles.iter().map(|particle| ParticleRenderData {
+                            pos: particle.pos,
+                            img: &particle_texture,
+                        })),
+                    view,
+                );
                 frame.present();
                 window.request_redraw();
             }
