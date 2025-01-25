@@ -15,7 +15,6 @@ impl PlayerRenderer {
 
     pub fn draw(&self, rpass: &mut RenderPass, frame_data: &FrameDataBinding, player: &Player) {
         let size = vec2(28., 28.);
-
         self.0.draw(
             rpass,
             frame_data,

@@ -1,4 +1,6 @@
-use crate::delta_time::{DeltaTime, DeltaTimer};
+use std::time::Duration;
+
+use crate::delta_time::DeltaTimer;
 use crate::level::Level;
 use crate::rendering::game_renderer::{GameRenderer, RenderConfig};
 use anyhow::Context;
@@ -8,22 +10,21 @@ use winit::event_loop::EventLoop;
 use winit::keyboard::{KeyCode, PhysicalKey};
 use winit::window::Window;
 
+const TIMESTEP: Duration = Duration::from_millis(10);
+
 pub struct Player {
     pub pos: Vec2,
     vel: Vec2,
-    acc: Vec2,
 }
 
 impl Player {
-    fn update(&mut self, dt: DeltaTime, level: &Level) {
-        let new_pos = self.pos + self.vel * *dt;
+    fn update(&mut self, level: &Level) {
+        let new_pos = self.pos + self.vel;
         if level.is_hit(new_pos.as_uvec2()) {
             self.vel = Vec2::ZERO;
         } else {
             self.pos = new_pos;
         }
-
-        dbg!(self.pos);
     }
 }
 
@@ -34,9 +35,10 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
 
     let mut player = Player {
         pos: level.entry_point.as_vec2(),
-        vel: vec2(0.0, -100.0),
-        acc: Vec2::ZERO,
+        vel: vec2(0.0, -1.0),
     };
+
+    dbg!(&level.entry_point);
 
     let mut size = window.inner_size();
     size.width = size.width.max(1);
@@ -85,23 +87,24 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
     let mut delta_timer = DeltaTimer::default();
     let mut left_pressed = false;
     let mut right_pressed = false;
+    let mut time_sum = Duration::ZERO;
     event_loop.run(|event, target| match event {
-        Event::DeviceEvent { event, .. } => match event {
-            winit::event::DeviceEvent::Key(k) => match k.physical_key {
-                PhysicalKey::Code(KeyCode::KeyA) => {
-                    left_pressed = k.state == ElementState::Pressed;
-                }
-                PhysicalKey::Code(KeyCode::KeyD) => {
-                    right_pressed = k.state == ElementState::Pressed;
-                }
-                _ => (),
-            },
-            _ => (),
-        },
         Event::WindowEvent {
             ref event,
             window_id,
         } if window_id == window.id() => match event {
+            WindowEvent::KeyboardInput { event, .. } => match event.physical_key {
+                PhysicalKey::Code(KeyCode::KeyA) => {
+                    left_pressed = event.state == ElementState::Pressed;
+                }
+                PhysicalKey::Code(KeyCode::KeyD) => {
+                    right_pressed = event.state == ElementState::Pressed;
+                }
+                PhysicalKey::Code(KeyCode::Escape) => {
+                    target.exit();
+                }
+                _ => (),
+            },
             WindowEvent::Resized(new_size) => {
                 // Reconfigure the surface with the new size
                 config.width = new_size.width.max(1);
@@ -111,14 +114,21 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
                 window.request_redraw();
             }
             WindowEvent::RedrawRequested => {
-                // UPDATE CODE
                 let dt = delta_timer.next();
-                player.update(dt, level);
-                if left_pressed {
-                    player.vel.x = -10.0;
-                }
-                if right_pressed {
-                    player.vel.x = 10.0;
+                time_sum += Duration::from_secs_f32(dt.delta_time);
+
+                // UPDATE CODE
+                while let Some(new) = time_sum.checked_sub(TIMESTEP) {
+                    time_sum = new;
+
+                    if left_pressed {
+                        player.vel.x -= 0.01;
+                    } else if right_pressed {
+                        player.vel.x += 0.01;
+                    } else {
+                        player.vel.x *= 0.5;
+                    }
+                    player.update(level);
                 }
 
                 // UPDATE CODE

@@ -63,7 +63,7 @@ impl Level {
     }
 
     pub fn is_hit(&self, pos: UVec2) -> bool {
-        self.collision_map.get_pixel(pos.x, pos.y) == &COLLISION
+        self.collision_map.get_pixel_checked(pos.x, pos.y) == Some(&COLLISION)
     }
 
     pub fn extent(&self) -> UVec2 {
