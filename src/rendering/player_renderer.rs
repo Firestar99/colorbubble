@@ -1,52 +1,39 @@
-use crate::rendering::game_renderer::RenderConfig;
-use std::borrow::Cow;
-use wgpu::{RenderPass, RenderPipeline};
+use crate::entity::player::Player;
+use crate::rendering::quad::{QuadRenderer, QuadVertex, QuadVertexBuffer};
+use glam::vec2;
+use wgpu::RenderPass;
 
-pub struct PlayerRenderer {
-    render_pipeline: RenderPipeline,
-}
+pub struct PlayerRenderer(QuadRenderer);
 
 impl PlayerRenderer {
-    pub fn new(config: &RenderConfig) -> Self {
-        let device = &config.device;
-        let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: None,
-            source: wgpu::ShaderSource::Wgsl(Cow::Borrowed(include_str!("trongle.wgsl"))),
-        });
-
-        let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: None,
-            bind_group_layouts: &[],
-            push_constant_ranges: &[],
-        });
-
-        let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: None,
-            layout: Some(&pipeline_layout),
-            vertex: wgpu::VertexState {
-                module: &shader,
-                entry_point: Some("vs_main"),
-                buffers: &[],
-                compilation_options: Default::default(),
-            },
-            fragment: Some(wgpu::FragmentState {
-                module: &shader,
-                entry_point: Some("fs_main"),
-                compilation_options: Default::default(),
-                targets: &[Some(config.swapchain_format.into())],
-            }),
-            primitive: wgpu::PrimitiveState::default(),
-            depth_stencil: None,
-            multisample: wgpu::MultisampleState::default(),
-            multiview: None,
-            cache: None,
-        });
-
-        Self { render_pipeline }
+    pub fn new(quad: QuadRenderer) -> Self {
+        Self(quad)
     }
 
-    pub fn draw(&self, _config: &RenderConfig, rpass: &mut RenderPass) {
-        rpass.set_pipeline(&self.render_pipeline);
-        rpass.draw(0..3, 0..1);
+    pub fn draw(&self, rpass: &mut RenderPass, player: &Player) {
+        self.0.draw(
+            rpass,
+            QuadVertexBuffer::new(
+                &self.0.config,
+                &[
+                    QuadVertex {
+                        position: vec2(0., 0.) + player.position,
+                        tex_coord: vec2(0., 0.),
+                    },
+                    QuadVertex {
+                        position: vec2(0., 1.) + player.position,
+                        tex_coord: vec2(0., 1.),
+                    },
+                    QuadVertex {
+                        position: vec2(1., 0.) + player.position,
+                        tex_coord: vec2(1., 0.),
+                    },
+                    QuadVertex {
+                        position: vec2(1., 1.) + player.position,
+                        tex_coord: vec2(1., 1.),
+                    },
+                ],
+            ),
+        )
     }
 }

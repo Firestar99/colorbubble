@@ -3,6 +3,7 @@ use anyhow::Context;
 use winit::event::{Event, WindowEvent};
 use winit::event_loop::EventLoop;
 use winit::window::Window;
+use crate::entity::game::Game;
 
 pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()> {
     let mut size = window.inner_size();
@@ -49,6 +50,8 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
         swapchain_format: surface.get_capabilities(&adapter).formats[0],
     });
 
+    let game = Game::new();
+
     event_loop.run(|event, target| match event {
         Event::WindowEvent {
             ref event,
@@ -69,7 +72,7 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
                 let view = frame
                     .texture
                     .create_view(&wgpu::TextureViewDescriptor::default());
-                renderer.draw(view);
+                renderer.draw(&game, view);
                 frame.present();
             }
             WindowEvent::CloseRequested => target.exit(),
