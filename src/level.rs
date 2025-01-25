@@ -4,39 +4,47 @@ use glam::UVec2;
 use image::{ImageReader, Rgb, RgbImage};
 
 const ENTRY_POINT: Rgb<u8> = Rgb([0, 99, 0]);
-const COLLISION: Rgb<u8> = Rgb([0, 0, 255]);
+const COLLISION: Rgb<u8> = Rgb([255, 255, 255]);
+// const COLLISION: Rgb<u8> = Rgb([0, 0, 255]);
 
 #[derive(Default)]
-struct Level {
-    entry_point: UVec2,
-    collision_map: RgbImage,
+pub struct Level {
+    pub entry_point: UVec2,
+    pub collision_map: RgbImage,
 }
 
 impl Level {
-    fn load_from_disk() -> Vec<Level> {
+    pub fn load_from_disk() -> Vec<Level> {
         let mut a = Vec::new();
-        for level_file in fs::read_dir("levels").unwrap() {
+        let mut levl_prths: Vec<_> = fs::read_dir("levels")
+            .unwrap()
+            .map(|e| e.unwrap().path())
+            .collect();
+        levl_prths.sort();
+
+        for level_file in levl_prths {
             let mut level = Level::default();
-            let level_file = level_file.unwrap();
-            let mut img = ImageReader::open(level_file.path())
+            let img = ImageReader::open(&level_file)
                 .unwrap()
                 .decode()
                 .unwrap()
                 .into_rgb8();
+            let mut collision_map = img.clone();
             for y in 0..img.height() {
                 for x in 0..img.width() {
-                    let pos = UVec2::new(x, y);
                     let pixel = img.get_pixel(x, y);
+
+                    let flipped_pos = UVec2::new(x, img.height() - 1 - y);
                     let mut collision = false;
                     if pixel == &ENTRY_POINT {
-                        level.entry_point = pos;
+                        level.entry_point = flipped_pos;
                     } else if pixel == &COLLISION {
                         collision = true;
                     }
 
-                    img.put_pixel(
-                        x,
-                        y,
+                    collision_map.put_pixel(
+                        flipped_pos.x,
+                        flipped_pos.y,
                         if collision {
                             COLLISION
                         } else {
@@ -46,15 +54,15 @@ impl Level {
                 }
             }
 
-            level.collision_map = img;
+            level.collision_map = collision_map;
             a.push(level);
+            break;
         }
 
         a
     }
-}
 
-pub fn doit() {
-    println!("we're doing it ");
-    let _lvl = Level::load_from_disk();
+    pub fn is_hit(&self, pos: UVec2) -> bool {
+        self.collision_map.get_pixel(pos.x, pos.y) == &COLLISION
+    }
 }

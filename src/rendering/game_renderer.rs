@@ -1,7 +1,7 @@
+use crate::main_loop::Player;
+use crate::rendering::player_renderer::PlayerRenderer;
 use crate::rendering::quad::QuadRenderer;
 use wgpu::{Device, Queue, TextureFormat, TextureView};
-use crate::entity::game::Game;
-use crate::rendering::player_renderer::PlayerRenderer;
 
 #[derive(Debug, Clone)]
 pub struct RenderConfig {
@@ -26,7 +26,7 @@ impl GameRenderer {
         }
     }
 
-    pub fn draw(&self, game: &Game, output: TextureView) {
+    pub fn draw(&self, player: &Player, output: TextureView) {
         let device = &self.config.device;
         let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("main draw"),
@@ -47,7 +47,7 @@ impl GameRenderer {
                 occlusion_query_set: None,
             });
 
-            self.player.draw(&mut rpass, &game.player);
+            self.player.draw(&mut rpass, &player);
         }
 
         self.config.queue.submit(Some(encoder.finish()));

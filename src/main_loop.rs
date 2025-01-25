@@ -1,11 +1,43 @@
+use crate::delta_time::{DeltaTime, DeltaTimer};
+use crate::level::Level;
 use crate::rendering::game_renderer::{GameRenderer, RenderConfig};
 use anyhow::Context;
-use winit::event::{Event, WindowEvent};
+use glam::{vec2, Vec2};
+use winit::event::{ElementState, Event, WindowEvent};
 use winit::event_loop::EventLoop;
+use winit::keyboard::{KeyCode, PhysicalKey};
 use winit::window::Window;
-use crate::entity::game::Game;
+
+pub struct Player {
+    pub pos: Vec2,
+    vel: Vec2,
+    acc: Vec2,
+}
+
+impl Player {
+    fn update(&mut self, dt: DeltaTime, level: &Level) {
+        let new_pos = self.pos + self.vel * *dt;
+        if level.is_hit(new_pos.as_uvec2()) {
+            self.vel = Vec2::ZERO;
+        } else {
+            self.pos = new_pos;
+        }
+
+        dbg!(self.pos);
+    }
+}
 
 pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()> {
+    let levels = Level::load_from_disk();
+    let current_level_idx = 0;
+    let level = &levels[current_level_idx];
+
+    let mut player = Player {
+        pos: level.entry_point.as_vec2(),
+        vel: vec2(0.0, -100.0),
+        acc: Vec2::ZERO,
+    };
+
     let mut size = window.inner_size();
     size.width = size.width.max(1);
     size.height = size.height.max(1);
@@ -50,9 +82,22 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
         swapchain_format: surface.get_capabilities(&adapter).formats[0],
     });
 
-    let game = Game::new();
-
+    let mut delta_timer = DeltaTimer::default();
+    let mut left_pressed = false;
+    let mut right_pressed = false;
     event_loop.run(|event, target| match event {
+        Event::DeviceEvent { event, .. } => match event {
+            winit::event::DeviceEvent::Key(k) => match k.physical_key {
+                PhysicalKey::Code(KeyCode::KeyA) => {
+                    left_pressed = k.state == ElementState::Pressed;
+                }
+                PhysicalKey::Code(KeyCode::KeyD) => {
+                    right_pressed = k.state == ElementState::Pressed;
+                }
+                _ => (),
+            },
+            _ => (),
+        },
         Event::WindowEvent {
             ref event,
             window_id,
@@ -66,14 +111,27 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
                 window.request_redraw();
             }
             WindowEvent::RedrawRequested => {
+                // UPDATE CODE
+                let dt = delta_timer.next();
+                player.update(dt, level);
+                if left_pressed {
+                    player.vel.x = -10.0;
+                }
+                if right_pressed {
+                    player.vel.x = 10.0;
+                }
+
+                // UPDATE CODE
+
                 let frame = surface
                     .get_current_texture()
                     .expect("Failed to acquire next swap chain texture");
                 let view = frame
                     .texture
                     .create_view(&wgpu::TextureViewDescriptor::default());
-                renderer.draw(&game, view);
+                renderer.draw(&player, view);
                 frame.present();
+                window.request_redraw();
             }
             WindowEvent::CloseRequested => target.exit(),
             _ => {}
