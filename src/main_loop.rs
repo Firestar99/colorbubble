@@ -5,14 +5,14 @@ use crate::level::Level;
 use crate::rendering::game_renderer::{GameRenderer, RenderConfig};
 use crate::rendering::quad_texture::QuadTexture;
 use anyhow::Context;
-use glam::{vec2, Vec2};
+use glam::{vec2, Vec2, Vec3};
 use winit::event::{ElementState, Event, WindowEvent};
 use winit::event_loop::EventLoop;
 use winit::keyboard::{KeyCode, PhysicalKey};
 use winit::window::Window;
 
 const TIMESTEP: Duration = Duration::from_millis(10);
-const GRAVITY: Vec2 = vec2(0.0, -1.0);
+const GRAVITY: Vec2 = vec2(0.0, -5.0);
 
 pub struct Player {
     pub pos: Vec2,
@@ -60,6 +60,7 @@ impl Bubble {
         self.dead = true;
         for i in 0..10 {
             particles.push(Particle {
+                age: 0,
                 pos: self.pos,
                 vel: Vec2::from_angle(i as f32) * 5.0,
             });
@@ -70,13 +71,15 @@ impl Bubble {
 pub struct Particle {
     pub pos: Vec2,
     vel: Vec2,
+    age: usize,
 }
 
 impl Particle {
     // returns true if collided
     fn update(&mut self, level: &Level) -> bool {
+        self.age += 1;
         self.pos += self.vel;
-        level.is_hit(self.pos.as_uvec2())
+        level.is_hit(self.pos.as_uvec2()) || self.age > 500
     }
 }
 
@@ -85,9 +88,14 @@ pub struct ParticleRenderData<'a> {
     pub img: &'a QuadTexture,
 }
 
+pub struct DespawnedParticle {
+    pub pos: Vec2,
+    pub color: Vec3, //??
+}
+
 pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()> {
     let levels = Level::load_file_tree()?;
-    let current_level_idx = 0;
+    let current_level_idx = 1;
     let level = &levels[current_level_idx];
 
     let mut player = Player {
@@ -201,6 +209,8 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
                 let dt = delta_timer.next();
                 time_sum += Duration::from_secs_f32(dt.delta_time);
 
+                let mut despawned_particles = Vec::new();
+
                 // UPDATE CODE
                 while let Some(new) = time_sum.checked_sub(TIMESTEP) {
                     time_sum = new;
@@ -214,7 +224,7 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
                     }
 
                     if jump_pressed && !old_jump_pressed && player.on_ground {
-                        player.vel.y = 10.0;
+                        player.vel.y = 40.0;
                     } else {
                         player.vel.y *= 0.8;
                     }
@@ -250,7 +260,11 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
                     }
 
                     for i in remove.into_iter().rev() {
-                        particles.remove(i);
+                        let particle = particles.remove(i);
+                        despawned_particles.push(DespawnedParticle {
+                            pos: particle.pos,
+                            color: Vec3::ONE, //todo??
+                        });
                     }
 
                     old_jump_pressed = jump_pressed;
@@ -278,6 +292,7 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
                             img: &particle_texture,
                         })),
                     view,
+                    despawned_particles,
                 );
                 frame.present();
                 window.request_redraw();

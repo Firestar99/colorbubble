@@ -1,5 +1,5 @@
 use super::particle_renderer::ParticleRenderer;
-use crate::main_loop::{ParticleRenderData, Player};
+use crate::main_loop::{DespawnedParticle, ParticleRenderData, Player};
 use crate::rendering::framedata::{
     get_viewport, FrameData, FrameDataBindGroupLayout, VIEWPORT_SIZE,
 };
@@ -43,6 +43,7 @@ impl GameRenderer {
         player: &Player,
         particles: impl Iterator<Item = ParticleRenderData<'a>>,
         output: TextureView,
+        despawned_particles: Vec<DespawnedParticle>,
     ) {
         let device = &self.config.device;
         let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
