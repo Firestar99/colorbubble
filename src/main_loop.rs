@@ -29,6 +29,22 @@ impl Player {
     }
 }
 
+pub struct Bubble {
+    pub pos: Vec2,
+    vel: Vec2,
+}
+
+impl Bubble {
+    fn update(&mut self, level: &Level) {
+        let new_pos = self.pos + (self.vel + GRAVITY);
+        if level.is_hit(new_pos.as_uvec2()) {
+            self.vel = Vec2::ZERO;
+        } else {
+            self.pos = new_pos;
+        }
+    }
+}
+
 pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()> {
     let levels = Level::load_file_tree()?;
     let current_level_idx = 0;
@@ -40,6 +56,8 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
     };
 
     dbg!(&level.entry_point);
+
+    let mut bubble = None;
 
     let mut size = window.inner_size();
     size.width = size.width.max(1);
@@ -91,26 +109,36 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
     let mut old_jump_pressed = false;
     let mut jump_pressed = false;
     let mut time_sum = Duration::ZERO;
+    let mut pointed_right = true; // false = pointed left
     event_loop.run(|event, target| match event {
         Event::WindowEvent {
             ref event,
             window_id,
         } if window_id == window.id() => match event {
-            WindowEvent::KeyboardInput { event, .. } => match event.physical_key {
-                PhysicalKey::Code(KeyCode::KeyA) => {
-                    left_pressed = event.state == ElementState::Pressed;
+            WindowEvent::KeyboardInput { event, .. } => {
+                let pressed = event.state == ElementState::Pressed;
+                match event.physical_key {
+                    PhysicalKey::Code(KeyCode::KeyA) => {
+                        left_pressed = pressed;
+                        if pressed {
+                            pointed_right = false;
+                        }
+                    }
+                    PhysicalKey::Code(KeyCode::KeyD) => {
+                        right_pressed = pressed;
+                        if pressed {
+                            pointed_right = true;
+                        }
+                    }
+                    PhysicalKey::Code(KeyCode::Space) => {
+                        jump_pressed = pressed;
+                    }
+                    PhysicalKey::Code(KeyCode::Escape) => {
+                        target.exit();
+                    }
+                    _ => (),
                 }
-                PhysicalKey::Code(KeyCode::KeyD) => {
-                    right_pressed = event.state == ElementState::Pressed;
-                }
-                PhysicalKey::Code(KeyCode::Space) => {
-                    jump_pressed = event.state == ElementState::Pressed;
-                }
-                PhysicalKey::Code(KeyCode::Escape) => {
-                    target.exit();
-                }
-                _ => (),
-            },
+            }
             WindowEvent::Resized(new_size) => {
                 // Reconfigure the surface with the new size
                 config.width = new_size.width.max(1);
