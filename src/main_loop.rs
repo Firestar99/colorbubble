@@ -17,6 +17,7 @@ const GRAVITY: Vec2 = vec2(0.0, -1.0);
 pub struct Player {
     pub pos: Vec2,
     vel: Vec2,
+    on_ground: bool,
 }
 
 impl Player {
@@ -24,8 +25,11 @@ impl Player {
         let new_pos = self.pos + (self.vel + GRAVITY);
         if level.is_hit(new_pos.as_uvec2()) {
             self.vel = Vec2::ZERO;
+            self.pos.x = new_pos.x; // horribly broken
+            self.on_ground = true; // not necessarily true
         } else {
             self.pos = new_pos;
+            self.on_ground = false;
         }
     }
 }
@@ -33,23 +37,31 @@ impl Player {
 pub struct Bubble {
     pub pos: Vec2,
     vel: Vec2,
+    dead: bool,
 }
 
 impl Bubble {
-    fn update(&mut self, level: &Level, particles: &mut Vec<Particle>) {
+    fn update(&mut self, level: &Level, particles: &mut Vec<Particle>) -> bool {
+        if self.dead {
+            return self.dead;
+        }
+
         let new_pos = self.pos + self.vel;
         if level.is_hit(new_pos.as_uvec2()) {
             self.pop(particles);
         } else {
             self.pos = new_pos;
         }
+
+        self.dead
     }
 
     fn pop(&mut self, particles: &mut Vec<Particle>) {
-        for i in 0..5 {
+        self.dead = true;
+        for i in 0..10 {
             particles.push(Particle {
                 pos: self.pos,
-                vel: Vec2::from_angle(i as f32),
+                vel: Vec2::from_angle(i as f32) * 5.0,
             });
         }
     }
@@ -81,6 +93,7 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
     let mut player = Player {
         pos: level.entry_point.as_vec2(),
         vel: vec2(0.0, -1.0),
+        on_ground: false,
     };
 
     dbg!(&level.entry_point);
@@ -200,7 +213,7 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
                         player.vel.x *= 0.8;
                     }
 
-                    if jump_pressed && !old_jump_pressed {
+                    if jump_pressed && !old_jump_pressed && player.on_ground {
                         player.vel.y = 10.0;
                     } else {
                         player.vel.y *= 0.8;
@@ -212,6 +225,7 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
                         }
 
                         bubble = Some(Bubble {
+                            dead: false,
                             pos: player.pos,
                             vel: if pointed_right {
                                 vec2(10.0, 0.0)
@@ -222,8 +236,10 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
                     }
 
                     player.update(level);
-                    if let Some(bubble) = &mut bubble {
-                        bubble.update(level, &mut particles);
+                    if let Some(bubble_val) = &mut bubble {
+                        if bubble_val.update(level, &mut particles) {
+                            bubble = None;
+                        }
                     }
 
                     let mut remove = Vec::new();
