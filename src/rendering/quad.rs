@@ -176,7 +176,7 @@ impl QuadRenderer {
         texture: &QuadTexture,
     ) {
         rpass.set_pipeline(&self.texture_pipeline);
-        rpass.set_bind_group(1, Some(&texture.0), &[]);
+        rpass.set_bind_group(1, Some(&texture.bind), &[]);
         self.draw_common(rpass, frame_data, vertices);
     }
 

@@ -6,8 +6,8 @@ use wgpu::{
     BindGroup, BindGroupDescriptor, BindGroupEntry, BindGroupLayout, BindGroupLayoutDescriptor,
     BindGroupLayoutEntry, BindingResource, BindingType, Extent3d, FilterMode, Sampler,
     SamplerBindingType, SamplerDescriptor, ShaderStages, Texture, TextureDescriptor,
-    TextureDimension, TextureFormat, TextureSampleType, TextureUsages, TextureViewDescriptor,
-    TextureViewDimension,
+    TextureDimension, TextureFormat, TextureSampleType, TextureUsages, TextureView,
+    TextureViewDescriptor, TextureViewDimension,
 };
 
 #[derive(Debug, Clone)]
@@ -52,7 +52,11 @@ impl QuadTextureBindGroupLayout {
 }
 
 #[derive(Debug, Clone)]
-pub struct QuadTexture(pub BindGroup);
+pub struct QuadTexture {
+    pub bind: BindGroup,
+    pub texture: Texture,
+    pub texture_view: TextureView,
+}
 
 impl QuadTexture {
     pub fn upload(
@@ -113,7 +117,7 @@ impl QuadTexture {
     ) -> Self {
         let device = &config.device;
         let texture_view = texture.create_view(&TextureViewDescriptor::default());
-        Self(device.create_bind_group(&BindGroupDescriptor {
+        let bind = device.create_bind_group(&BindGroupDescriptor {
             label: Some("Quad texture bind group"),
             layout: &layout.layout,
             entries: &[
@@ -126,6 +130,11 @@ impl QuadTexture {
                     resource: BindingResource::Sampler(&layout.sampler),
                 },
             ],
-        }))
+        });
+        Self {
+            bind,
+            texture,
+            texture_view,
+        }
     }
 }
