@@ -151,7 +151,7 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
         device: device.clone(),
         queue,
         swapchain_format: surface.get_capabilities(&adapter).formats[0],
-    });
+    })?;
     renderer.level.load_level(level.clone());
     let bubble_texture = renderer.particle.load_texture("assets/bubble.png");
     let particle_texture = renderer.particle.load_texture("assets/Splash.png");
@@ -270,8 +270,10 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
                     old_jump_pressed = jump_pressed;
                     old_bubble_spawn_pressed = bubble_spawn_pressed;
                 }
-
                 // UPDATE CODE
+
+                // BUBBLE DRAW
+                renderer.level.draw_color_splashes(&despawned_particles);
 
                 let frame = surface
                     .get_current_texture()
@@ -292,7 +294,6 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
                             img: &particle_texture,
                         })),
                     view,
-                    despawned_particles,
                 );
                 frame.present();
                 window.request_redraw();

@@ -40,5 +40,9 @@ var my_sampler: sampler;
 
 @fragment
 fn fs_texture(vertex: VertexOutput) -> @location(0) vec4<f32> {
-	return textureSample(my_texture, my_sampler, vertex.tex_coord) * vertex.vtx_color;
+	var color = textureSample(my_texture, my_sampler, vertex.tex_coord) * vertex.vtx_color;
+	if color.a < 0.01 {
+		discard;
+	}
+	return color;
 }

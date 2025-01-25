@@ -1,5 +1,5 @@
 use super::particle_renderer::ParticleRenderer;
-use crate::main_loop::{DespawnedParticle, ParticleRenderData, Player};
+use crate::main_loop::{ParticleRenderData, Player};
 use crate::rendering::framedata::{
     get_viewport, FrameData, FrameDataBindGroupLayout, VIEWPORT_SIZE,
 };
@@ -25,17 +25,17 @@ pub struct GameRenderer {
 }
 
 impl GameRenderer {
-    pub fn new(config: &RenderConfig) -> Self {
+    pub fn new(config: &RenderConfig) -> anyhow::Result<Self> {
         let frame_data_layout = FrameDataBindGroupLayout::new(config);
         let quad_texture_layout = QuadTextureBindGroupLayout::new(config);
         let quad = QuadRenderer::new(config, frame_data_layout, quad_texture_layout);
-        Self {
+        Ok(Self {
             player: PlayerRenderer::new(quad.clone()),
-            level: LevelRenderer::new(quad.clone()),
+            level: LevelRenderer::new(quad.clone())?,
             particle: ParticleRenderer::new(quad.clone()),
             quad,
             config: config.clone(),
-        }
+        })
     }
 
     pub fn draw<'a>(
@@ -43,7 +43,6 @@ impl GameRenderer {
         player: &Player,
         particles: impl Iterator<Item = ParticleRenderData<'a>>,
         output: TextureView,
-        despawned_particles: Vec<DespawnedParticle>,
     ) {
         let device = &self.config.device;
         let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {

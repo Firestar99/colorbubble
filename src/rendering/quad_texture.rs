@@ -1,5 +1,4 @@
 use crate::rendering::game_renderer::RenderConfig;
-use glam::UVec2;
 use image::RgbaImage;
 use wgpu::util::{DeviceExt, TextureDataOrder};
 use wgpu::{
@@ -84,29 +83,6 @@ impl QuadTexture {
             TextureDataOrder::MipMajor,
             &image.as_raw(),
         );
-        Self::new(config, layout, texture)
-    }
-
-    pub fn new_cleared(
-        config: &RenderConfig,
-        layout: &QuadTextureBindGroupLayout,
-        size: UVec2,
-    ) -> Self {
-        let device = &config.device;
-        let texture = device.create_texture(&TextureDescriptor {
-            label: Some("Quad texture"),
-            size: Extent3d {
-                width: size.x,
-                height: size.y,
-                depth_or_array_layers: 1,
-            },
-            mip_level_count: 1,
-            sample_count: 1,
-            dimension: TextureDimension::D2,
-            format: TextureFormat::Rgba8UnormSrgb,
-            usage: TextureUsages::TEXTURE_BINDING,
-            view_formats: &[],
-        });
         Self::new(config, layout, texture)
     }
 
