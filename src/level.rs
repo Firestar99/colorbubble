@@ -46,10 +46,7 @@ impl Level {
     }
 
     pub fn load_file_tree() -> anyhow::Result<Vec<Level>> {
-        let mut levl_prths: Vec<_> = fs::read_dir("levels")
-            .unwrap()
-            .map(|e| e.unwrap().path())
-            .collect();
+        let mut levl_prths: Vec<_> = fs::read_dir("levels")?.map(|e| e.unwrap().path()).collect();
         levl_prths.sort();
         Ok(levl_prths
             .iter()
@@ -65,8 +62,8 @@ impl Level {
     }
 
     pub fn collision_rectu(&self, rect: URect) -> bool {
-        for x in 0..rect.width() {
-            for y in 0..rect.height() {
+        for y in 0..rect.height() {
+            for x in 0..rect.width() {
                 if *self.collision_map.get_pixel(x, y) == COLLISION_LUMA {
                     return true;
                 }
