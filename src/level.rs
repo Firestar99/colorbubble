@@ -1,3 +1,4 @@
+use bevy_math::{Rect, URect};
 use glam::{uvec2, UVec2};
 use image::{GrayImage, ImageReader, Luma, Rgb, RgbImage};
 use std::fs;
@@ -54,6 +55,24 @@ impl Level {
             .iter()
             .map(|a| Self::load_from_file(&a))
             .collect::<Result<Vec<_>, _>>()?)
+    }
+
+    pub fn collision_rect(&self, rect: Rect) -> bool {
+        self.collision_rectu(URect::from_corners(
+            rect.min.as_uvec2(),
+            rect.max.as_uvec2() + UVec2::new(1, 1),
+        ))
+    }
+
+    pub fn collision_rectu(&self, rect: URect) -> bool {
+        for x in 0..rect.width() {
+            for y in 0..rect.height() {
+                if *self.collision_map.get_pixel(x, y) == COLLISION_LUMA {
+                    return true;
+                }
+            }
+        }
+        false
     }
 
     pub fn is_hit(&self, pos: UVec2) -> bool {
