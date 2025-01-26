@@ -82,6 +82,7 @@ impl Player {
     }
 
     pub fn update(&mut self, level: &Level, particles: &mut Vec<Splash>) -> Option<Bubble> {
+        dbg!(self.pos);
         self.hsv_hue = (self.hsv_hue + HSV_HUE_SPEED) % 1.;
 
         if self.left_pressed {
@@ -115,7 +116,7 @@ impl Player {
 
         self.vel += GRAVITY;
         let new_pos = self.pos + self.vel;
-        if level.is_hit(new_pos.as_uvec2()) {
+        if level.is_hit(new_pos.as_ivec2()) {
             self.vel = Vec2::ZERO;
             self.pos.x = new_pos.x; // horribly broken
             self.on_ground = true; // not necessarily true
@@ -124,9 +125,10 @@ impl Player {
             self.on_ground = false;
         }
 
-        if level.is_death(new_pos.as_uvec2()) {
+        if level.is_death(new_pos.as_ivec2()) {
             Splash::spawn_many(particles, self.pos, 2., self.color(), 25);
             self.pos = level.entry_point.as_vec2();
+            self.vel = Vec2::ZERO;
         }
 
         self.old_jump_pressed = self.jump_pressed;

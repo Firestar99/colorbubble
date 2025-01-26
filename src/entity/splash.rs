@@ -32,6 +32,6 @@ impl Splash {
         self.vel += GRAVITY;
         self.age += 1;
         self.pos += self.vel;
-        level.is_hit(self.pos.as_uvec2()) || self.age > MAX_AGE
+        level.is_hit(self.pos.as_ivec2()) || self.age > MAX_AGE
     }
 }

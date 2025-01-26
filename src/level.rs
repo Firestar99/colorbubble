@@ -1,5 +1,5 @@
 use bevy_math::{Rect, URect};
-use glam::{uvec2, UVec2};
+use glam::{uvec2, IVec2, UVec2};
 use image::{GrayImage, ImageReader, Luma, Rgba, RgbaImage};
 use std::fs;
 use std::path::Path;
@@ -82,14 +82,25 @@ impl Level {
         false
     }
 
-    pub fn is_hit(&self, pos: UVec2) -> bool {
-        self.collision_map.get_pixel_checked(pos.x, pos.y) == Some(&COLLISION_LUMA)
+    pub fn is_hit(&self, pos: IVec2) -> bool {
+        if pos.x < 0 && pos.y < 0 {
+            false
+        } else {
+            self.collision_map
+                .get_pixel_checked(pos.x as u32, pos.y as u32)
+                == Some(&COLLISION_LUMA)
+        }
     }
 
-    pub fn is_death(&self, pos: UVec2) -> bool {
-        self.collision_map
-            .get_pixel_checked(pos.x, pos.y)
-            .map_or(true, |e| *e == DEATH_LUMA)
+    #[inline(never)]
+    pub fn is_death(&self, pos: IVec2) -> bool {
+        if pos.x < 0 && pos.y < 0 {
+            true
+        } else {
+            self.collision_map
+                .get_pixel_checked(pos.x as u32, pos.y as u32)
+                .map_or(true, |e| *e == DEATH_LUMA)
+        }
     }
 
     pub fn extent(&self) -> UVec2 {

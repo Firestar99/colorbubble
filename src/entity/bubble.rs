@@ -18,7 +18,7 @@ impl Bubble {
         self.vel *= DAMP;
         self.vel += GRAVITY;
         let new_pos = self.pos + self.vel;
-        if level.is_hit(new_pos.as_uvec2()) {
+        if level.is_hit(new_pos.as_ivec2()) {
             self.pop(particles);
         } else {
             self.pos = new_pos;
