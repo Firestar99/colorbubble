@@ -71,7 +71,9 @@ impl Player {
             PhysicalKey::Code(KeyCode::Space) => {
                 self.jump_pressed = pressed;
             }
-            PhysicalKey::Code(KeyCode::ShiftLeft | KeyCode::ShiftRight) => {
+            PhysicalKey::Code(
+                KeyCode::ShiftLeft | KeyCode::ShiftRight | KeyCode::KeyE | KeyCode::KeyQ,
+            ) => {
                 self.bubble_spawn_pressed = pressed;
             }
             _ => (),
