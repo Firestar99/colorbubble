@@ -82,7 +82,6 @@ impl Player {
     }
 
     pub fn update(&mut self, level: &Level, particles: &mut Vec<Splash>) -> Option<Bubble> {
-        dbg!(self.pos);
         self.hsv_hue = (self.hsv_hue + HSV_HUE_SPEED) % 1.;
 
         if self.left_pressed {
