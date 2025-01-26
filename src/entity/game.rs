@@ -42,7 +42,8 @@ impl Game {
                 }
             }
             if let Some(bubble) = &mut self.player_bubble {
-                if bubble.update(&self.level, &mut self.particles) {
+                bubble.update(&self.level, &mut self.particles);
+                if bubble.dead {
                     self.player_bubble = None;
                 }
             }
