@@ -1,8 +1,6 @@
+use crate::entity::player::Player;
 use crate::rendering::framedata::FrameDataBinding;
-use crate::{
-    main_loop::Player,
-    rendering::quad::{QuadRenderer, QuadVertex, QuadVertexBuffer},
-};
+use crate::rendering::quad::{QuadRenderer, QuadVertex, QuadVertexBuffer};
 use glam::{vec2, vec4};
 use wgpu::RenderPass;
 

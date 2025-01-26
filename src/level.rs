@@ -11,7 +11,7 @@ const COLLISION: Rgba<u8> = Rgba([255, 255, 255, 255]);
 
 const COLLISION_LUMA: Luma<u8> = Luma([255]);
 
-#[derive(Default)]
+#[derive(Debug, Clone, Default)]
 pub struct Level {
     pub size: UVec2,
     pub image: RgbaImage,

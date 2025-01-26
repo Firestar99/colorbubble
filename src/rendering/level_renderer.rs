@@ -1,5 +1,5 @@
+use crate::entity::splash::DespawnedParticle;
 use crate::level::Level;
-use crate::main_loop::DespawnedParticle;
 use crate::rendering::framedata::{FrameData, FrameDataBinding, VIEWPORT_SIZE};
 use crate::rendering::quad::{QuadRenderer, QuadVertex, QuadVertexBuffer};
 use crate::rendering::quad_texture::QuadTexture;

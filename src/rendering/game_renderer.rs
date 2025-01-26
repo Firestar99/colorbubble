@@ -1,5 +1,6 @@
 use super::particle_renderer::ParticleRenderer;
-use crate::main_loop::{ParticleRenderData, Player};
+use crate::entity::player::Player;
+use crate::main_loop::ParticleRenderData;
 use crate::rendering::framedata::{
     get_viewport, FrameData, FrameDataBindGroupLayout, VIEWPORT_SIZE,
 };
