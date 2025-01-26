@@ -1,4 +1,5 @@
 use crate::entity::bubble::Bubble;
+use crate::entity::splash::Splash;
 use crate::hsv2rgb::hsv2rgb;
 use crate::level::Level;
 use glam::{vec2, Vec2, Vec3, Vec4};
@@ -80,7 +81,7 @@ impl Player {
         }
     }
 
-    pub fn update(&mut self, level: &Level) -> Option<Bubble> {
+    pub fn update(&mut self, level: &Level, particles: &mut Vec<Splash>) -> Option<Bubble> {
         self.hsv_hue = (self.hsv_hue + HSV_HUE_SPEED) % 1.;
 
         if self.left_pressed {
@@ -121,6 +122,11 @@ impl Player {
         } else {
             self.pos = new_pos;
             self.on_ground = false;
+        }
+
+        if level.is_death(new_pos.as_uvec2()) {
+            Splash::spawn_many(particles, self.pos, 2., self.color(), 25);
+            self.pos = level.entry_point.as_vec2();
         }
 
         self.old_jump_pressed = self.jump_pressed;

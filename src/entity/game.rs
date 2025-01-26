@@ -38,7 +38,7 @@ impl Game {
         while let Some(new) = self.time_sum.checked_sub(TIMESTEP) {
             self.time_sum = new;
 
-            if let Some(bubble) = self.player.update(&self.level) {
+            if let Some(bubble) = self.player.update(&self.level, &mut self.splashes) {
                 if let Some(mut old) = self.player_bubble.replace(bubble) {
                     old.pop(&mut self.splashes);
                 }

@@ -7,10 +7,12 @@ use std::sync::Arc;
 
 const ENTRY_POINT: Rgba<u8> = Rgba([0, 99, 0, 255]);
 const PORTAL: Rgba<u8> = Rgba([0, 98, 0, 255]);
+const DEATH: Rgba<u8> = Rgba([0, 0, 100, 255]);
 const COLLISION: Rgba<u8> = Rgba([255, 255, 255, 255]);
 // const COLLISION: Rgba<u8> = Rgba([0, 0, 255, 255]);
 
 const COLLISION_LUMA: Luma<u8> = Luma([255]);
+const DEATH_LUMA: Luma<u8> = Luma([1]);
 
 #[derive(Debug, Clone, Default)]
 pub struct Level {
@@ -34,12 +36,12 @@ impl Level {
                 let pos = UVec2::new(x, y);
                 let mut pixel = *image.get_pixel(x, y);
                 pixel.0[3] = 255;
-                if pixel == ENTRY_POINT {
-                    entry_point = pos;
-                } else if pixel == PORTAL {
-                    portal = pos;
-                } else if pixel == COLLISION {
-                    collision_map.put_pixel(pos.x, pos.y, COLLISION_LUMA);
+                match pixel {
+                    ENTRY_POINT => entry_point = pos,
+                    PORTAL => portal = pos,
+                    COLLISION => collision_map.put_pixel(pos.x, pos.y, COLLISION_LUMA),
+                    DEATH => collision_map.put_pixel(pos.x, pos.y, DEATH_LUMA),
+                    _ => {}
                 }
             }
         }
@@ -82,6 +84,12 @@ impl Level {
 
     pub fn is_hit(&self, pos: UVec2) -> bool {
         self.collision_map.get_pixel_checked(pos.x, pos.y) == Some(&COLLISION_LUMA)
+    }
+
+    pub fn is_death(&self, pos: UVec2) -> bool {
+        self.collision_map
+            .get_pixel_checked(pos.x, pos.y)
+            .map_or(true, |e| *e == DEATH_LUMA)
     }
 
     pub fn extent(&self) -> UVec2 {

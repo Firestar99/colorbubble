@@ -29,15 +29,8 @@ impl Bubble {
         if self.dead {
             return;
         }
+        Splash::spawn_many(particles, self.pos, 1., self.color, 10);
 
         self.dead = true;
-        for i in 0..10 {
-            particles.push(Splash {
-                age: 0,
-                pos: self.pos,
-                color: self.color,
-                vel: Vec2::from_angle(i as f32) * 5.0,
-            });
-        }
     }
 }
