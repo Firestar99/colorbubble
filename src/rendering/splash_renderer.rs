@@ -2,7 +2,7 @@ use super::quad_texture::QuadTexture;
 use crate::entity::splash::Splash;
 use crate::rendering::framedata::FrameDataBinding;
 use crate::rendering::quad::{QuadRenderer, QuadVertex, QuadVertexBuffer};
-use glam::vec2;
+use glam::{vec2, Mat2};
 use wgpu::RenderPass;
 
 pub struct SplashRenderer {
@@ -28,26 +28,28 @@ impl SplashRenderer {
             &splashes
                 .iter()
                 .flat_map(|splash| {
-                    let size = vec2(28., 28.);
+                    let size = vec2(7., 7.);
+                    let dir = splash.vel.normalize();
+                    let rot = Mat2::from_cols_array_2d(&[[dir.y, -dir.x], [dir.x, dir.y]]);
                     let vtx_color = splash.color;
                     [
                         QuadVertex {
-                            position: vec2(0., 0.) * size + splash.pos,
+                            position: rot * vec2(-1., -1.) * size + splash.pos,
                             tex_coord: vec2(0., 0.),
                             vtx_color,
                         },
                         QuadVertex {
-                            position: vec2(0., 1.) * size + splash.pos,
+                            position: rot * vec2(-1., 1.) * size + splash.pos,
                             tex_coord: vec2(0., 1.),
                             vtx_color,
                         },
                         QuadVertex {
-                            position: vec2(1., 0.) * size + splash.pos,
+                            position: rot * vec2(1., -1.) * size + splash.pos,
                             tex_coord: vec2(1., 0.),
                             vtx_color,
                         },
                         QuadVertex {
-                            position: vec2(1., 1.) * size + splash.pos,
+                            position: rot * vec2(1., 1.) * size + splash.pos,
                             tex_coord: vec2(1., 1.),
                             vtx_color,
                         },
