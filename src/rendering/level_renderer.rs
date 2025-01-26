@@ -1,6 +1,6 @@
 use crate::entity::splash::Splash;
 use crate::level::Level;
-use crate::rendering::framedata::{FrameData, FrameDataBinding, VIEWPORT_SIZE};
+use crate::rendering::framedata::{FrameData, FrameDataBinding};
 use crate::rendering::quad::{QuadRenderer, QuadVertex, QuadVertexBuffer};
 use crate::rendering::quad_texture::QuadTexture;
 use glam::{vec2, vec4, Mat2, Vec2, Vec4};
@@ -70,7 +70,7 @@ impl LevelRenderer {
     }
 
     pub fn load_level(&mut self, level: Arc<Level>) {
-        let size = VIEWPORT_SIZE;
+        let size = level.size.as_vec2();
         let vertices = QuadVertexBuffer::new(
             &self.quad.config,
             &[
@@ -205,7 +205,7 @@ impl LevelRenderer {
                 let mut rng = thread_rng();
                 for b in bubbles {
                     let size = 20. + 10. * rng.sample::<f32, _>(Open01);
-                    let pos = vec2(b.pos.x, VIEWPORT_SIZE.y - b.pos.y);
+                    let pos = vec2(b.pos.x, loaded.level.size.y as f32 - b.pos.y);
                     let texture = &self.splashes[rng.gen_range(0..self.splashes.len())];
                     let vtx_color = b.color;
                     let rot = Mat2::from_angle(rng.sample(Open01));

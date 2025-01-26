@@ -1,9 +1,7 @@
 use super::splash_renderer::SplashRenderer;
 use crate::entity::game::Game;
 use crate::rendering::bubble_renderer::BubbleRenderer;
-use crate::rendering::framedata::{
-    get_viewport, FrameData, FrameDataBindGroupLayout, VIEWPORT_SIZE,
-};
+use crate::rendering::framedata::{get_viewport, FrameData, FrameDataBindGroupLayout};
 use crate::rendering::level_renderer::LevelRenderer;
 use crate::rendering::player_renderer::PlayerRenderer;
 use crate::rendering::quad::QuadRenderer;
@@ -63,7 +61,7 @@ impl GameRenderer {
             });
 
             let frame_data = self.quad.frame_data_layout.create_bind_group(FrameData {
-                viewport: get_viewport(VIEWPORT_SIZE.as_uvec2(), game.player.pos),
+                viewport: get_viewport(game.level.size, game.player.pos),
             });
             self.level.draw(&mut rpass, &frame_data);
             self.player.draw(&mut rpass, &frame_data, &game.player);

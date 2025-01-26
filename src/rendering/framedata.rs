@@ -17,9 +17,11 @@ pub struct FrameData {
 }
 
 pub fn get_viewport(level_size: UVec2, player: Vec2) -> Vec4 {
-    let position = player.clamp(Vec2::ZERO, level_size.as_vec2() - VIEWPORT_SIZE);
+    let viewport_half = VIEWPORT_SIZE * 0.5;
+    let position = player.clamp(viewport_half, level_size.as_vec2() - viewport_half);
+    let shift = -position / VIEWPORT_SIZE * 2.;
     let fract = 1. / VIEWPORT_SIZE * 2.;
-    Vec4::from((position - 1., fract))
+    Vec4::from((shift, fract))
 }
 
 #[derive(Debug, Clone)]
