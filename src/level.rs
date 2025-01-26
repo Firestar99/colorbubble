@@ -6,6 +6,7 @@ use std::path::Path;
 use std::sync::Arc;
 
 const ENTRY_POINT: Rgba<u8> = Rgba([0, 99, 0, 255]);
+const PORTAL: Rgba<u8> = Rgba([0, 98, 0, 255]);
 const COLLISION: Rgba<u8> = Rgba([255, 255, 255, 255]);
 // const COLLISION: Rgba<u8> = Rgba([0, 0, 255, 255]);
 
@@ -17,6 +18,7 @@ pub struct Level {
     pub image: RgbaImage,
     pub collision_map: GrayImage,
     pub entry_point: UVec2,
+    pub portal: UVec2,
 }
 
 impl Level {
@@ -25,14 +27,18 @@ impl Level {
 
         let mut collision_map = GrayImage::new(image.width(), image.height());
         let mut entry_point = UVec2::ZERO;
+        let mut portal = UVec2::ZERO;
 
         for y in 0..image.height() {
             for x in 0..image.width() {
                 let pos = UVec2::new(x, y);
-                let pixel = image.get_pixel(x, y);
-                if pixel == &ENTRY_POINT {
+                let mut pixel = *image.get_pixel(x, y);
+                pixel.0[3] = 255;
+                if pixel == ENTRY_POINT {
                     entry_point = pos;
-                } else if pixel == &COLLISION {
+                } else if pixel == PORTAL {
+                    portal = pos;
+                } else if pixel == COLLISION {
                     collision_map.put_pixel(pos.x, pos.y, COLLISION_LUMA);
                 }
             }
@@ -41,8 +47,9 @@ impl Level {
         Ok(Arc::new(Self {
             size: uvec2(image.width(), image.height()),
             image,
-            entry_point,
             collision_map,
+            entry_point,
+            portal,
         }))
     }
 

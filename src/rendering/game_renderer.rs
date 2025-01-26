@@ -1,7 +1,5 @@
 use super::splash_renderer::SplashRenderer;
-use crate::entity::bubble::Bubble;
-use crate::entity::player::Player;
-use crate::entity::splash::Splash;
+use crate::entity::game::Game;
 use crate::rendering::bubble_renderer::BubbleRenderer;
 use crate::rendering::framedata::{
     get_viewport, FrameData, FrameDataBindGroupLayout, VIEWPORT_SIZE,
@@ -43,13 +41,7 @@ impl GameRenderer {
         })
     }
 
-    pub fn draw<'a>(
-        &self,
-        player: &Player,
-        bubbles: &[Bubble],
-        splashes: &[Splash],
-        output: TextureView,
-    ) {
+    pub fn draw<'a>(&self, game: &Game, output: TextureView) {
         let device = &self.config.device;
         let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("main draw"),
@@ -71,12 +63,16 @@ impl GameRenderer {
             });
 
             let frame_data = self.quad.frame_data_layout.create_bind_group(FrameData {
-                viewport: get_viewport(VIEWPORT_SIZE.as_uvec2(), player.pos),
+                viewport: get_viewport(VIEWPORT_SIZE.as_uvec2(), game.player.pos),
             });
             self.level.draw(&mut rpass, &frame_data);
-            self.player.draw(&mut rpass, &frame_data, player);
-            self.splash.draw(&mut rpass, &frame_data, splashes);
-            self.bubble.draw(&mut rpass, &frame_data, bubbles);
+            self.player.draw(&mut rpass, &frame_data, &game.player);
+            game.portal
+                .render(&mut rpass, &frame_data, &self.quad, &game.player);
+            self.splash
+                .draw(&mut rpass, &frame_data, game.splashes.as_slice());
+            self.bubble
+                .draw(&mut rpass, &frame_data, game.player_bubble.as_slice());
         }
 
         self.config.queue.submit(Some(encoder.finish()));

@@ -9,10 +9,6 @@ use winit::keyboard::{KeyCode, PhysicalKey};
 use winit::window::Window;
 
 pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()> {
-    let levels = Level::load_file_tree()?;
-    let current_level_idx = 1;
-    let level = &levels[current_level_idx];
-
     let mut size = window.inner_size();
     size.width = size.width.max(1);
     size.height = size.height.max(1);
@@ -56,9 +52,13 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
         queue,
         swapchain_format: surface.get_capabilities(&adapter).formats[0],
     })?;
-    renderer.level.load_level(level.clone());
 
-    let mut game = Game::new(level.clone());
+    let levels = Level::load_file_tree()?;
+    let mut current_level_idx = 0;
+
+    // oof duplicated
+    let mut game = Game::new(levels[current_level_idx].clone());
+    renderer.level.load_level(game.level.clone());
 
     let mut delta_timer = DeltaTimer::default();
     event_loop.run(|event, target| match event {
@@ -98,14 +98,17 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
                 let view = frame
                     .texture
                     .create_view(&wgpu::TextureViewDescriptor::default());
-                renderer.draw(
-                    &game.player,
-                    game.player_bubble.as_slice(),
-                    &game.particles,
-                    view,
-                );
+                renderer.draw(&game, view);
                 frame.present();
                 window.request_redraw();
+
+                // LEVEL LOAD
+                // oof duplicated
+                if game.portal.jump_to_next_level() {
+                    current_level_idx += 1;
+                    game = Game::new(levels[current_level_idx].clone());
+                    renderer.level.load_level(game.level.clone());
+                }
             }
             WindowEvent::CloseRequested => target.exit(),
             _ => {}

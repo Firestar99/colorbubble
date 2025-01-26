@@ -12,6 +12,10 @@ impl PlayerRenderer {
     }
 
     pub fn draw(&self, rpass: &mut RenderPass, frame_data: &FrameDataBinding, player: &Player) {
+        if player.hidden {
+            return;
+        }
+
         let size = vec2(28., 28.);
         let vtx_color = vec4(1., 1., 1., 1.);
         self.0.draw_color(

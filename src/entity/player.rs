@@ -18,6 +18,7 @@ pub struct Player {
     pub pos: Vec2,
     pub vel: Vec2,
     pub hsv_hue: f32,
+    pub hidden: bool,
 
     on_ground: bool,
     left_pressed: bool,
@@ -36,6 +37,7 @@ impl Player {
             pos,
             vel: vec2(0.0, -1.0),
             hsv_hue: 0.,
+            hidden: false,
             on_ground: false,
             left_pressed: false,
             right_pressed: false,
