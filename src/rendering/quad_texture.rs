@@ -22,7 +22,7 @@ impl QuadTextureBindGroupLayout {
             label: Some("Quad texture bind group layout"),
             entries: &[
                 BindGroupLayoutEntry {
-                    binding: 1,
+                    binding: 0,
                     visibility: ShaderStages::VERTEX_FRAGMENT,
                     ty: BindingType::Texture {
                         sample_type: TextureSampleType::default(),
@@ -32,7 +32,7 @@ impl QuadTextureBindGroupLayout {
                     count: None,
                 },
                 BindGroupLayoutEntry {
-                    binding: 2,
+                    binding: 1,
                     visibility: ShaderStages::VERTEX_FRAGMENT,
                     ty: BindingType::Sampler(SamplerBindingType::Filtering),
                     count: None,
@@ -98,11 +98,11 @@ impl QuadTexture {
             layout: &layout.layout,
             entries: &[
                 BindGroupEntry {
-                    binding: 1,
+                    binding: 0,
                     resource: BindingResource::TextureView(&texture_view),
                 },
                 BindGroupEntry {
-                    binding: 2,
+                    binding: 1,
                     resource: BindingResource::Sampler(&layout.sampler),
                 },
             ],
