@@ -4,7 +4,12 @@ use glam::{vec2, Vec2};
 use winit::event::{ElementState, KeyEvent};
 use winit::keyboard::{KeyCode, PhysicalKey};
 
-pub const GRAVITY: Vec2 = vec2(0.0, -5.0);
+const GRAVITY: Vec2 = vec2(0.0, -1.1);
+const SPEED_X: f32 = 5.5;
+const JUMP_Y: f32 = 18.0;
+const DAMP_X: f32 = 0.8;
+const DAMP_Y: f32 = 1.;
+const BUBBLE_SPAWN_DISTANCE: Vec2 = vec2(10., 0.);
 
 #[derive(Debug, Copy, Clone)]
 pub struct Player {
@@ -65,17 +70,17 @@ impl Player {
 
     pub fn update(&mut self, level: &Level) -> Option<Bubble> {
         if self.left_pressed {
-            self.vel.x = -5.5;
+            self.vel.x = -SPEED_X;
         } else if self.right_pressed {
-            self.vel.x = 5.5;
+            self.vel.x = SPEED_X;
         } else {
-            self.vel.x *= 0.8;
+            self.vel.x *= DAMP_X;
         }
 
         if self.jump_pressed && !self.old_jump_pressed && self.on_ground {
-            self.vel.y = 40.0;
+            self.vel.y = JUMP_Y;
         } else {
-            self.vel.y *= 0.8;
+            self.vel.y *= DAMP_Y;
         }
 
         let bubble = if self.bubble_spawn_pressed && !self.old_bubble_spawn_pressed {
@@ -83,16 +88,17 @@ impl Player {
                 dead: false,
                 pos: self.pos,
                 vel: if self.pointed_right {
-                    vec2(10.0, 0.0)
+                    vec2(1.0, 0.0)
                 } else {
-                    vec2(-10.0, 0.0)
-                },
+                    vec2(-1.0, 0.0)
+                } * BUBBLE_SPAWN_DISTANCE,
             })
         } else {
             None
         };
 
-        let new_pos = self.pos + (self.vel + GRAVITY);
+        self.vel += GRAVITY;
+        let new_pos = self.pos + self.vel;
         if level.is_hit(new_pos.as_uvec2()) {
             self.vel = Vec2::ZERO;
             self.pos.x = new_pos.x; // horribly broken

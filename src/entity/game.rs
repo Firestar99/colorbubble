@@ -7,7 +7,7 @@ use glam::Vec3;
 use std::sync::Arc;
 use std::time::Duration;
 
-pub const TIMESTEP: Duration = Duration::from_millis(10);
+pub const TIMESTEP: Duration = Duration::from_nanos(16_666_667);
 
 #[derive(Debug, Clone)]
 pub struct Game {
