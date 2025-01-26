@@ -6,8 +6,8 @@ use std::borrow::Cow;
 use std::mem::offset_of;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
-    Buffer, BufferAddress, BufferUsages, RenderPass, RenderPipeline, VertexAttribute,
-    VertexBufferLayout, VertexFormat, VertexStepMode,
+    Buffer, BufferAddress, BufferUsages, ColorTargetState, RenderPass, RenderPipeline,
+    VertexAttribute, VertexBufferLayout, VertexFormat, VertexStepMode,
 };
 
 pub const MAX_QUADS_PER_DRAW: u32 = 1024;
@@ -97,6 +97,11 @@ impl QuadRenderer {
             }],
             compilation_options: Default::default(),
         };
+        let color_targets = [Some(ColorTargetState {
+            format: config.swapchain_format,
+            blend: Some(wgpu::BlendState::ALPHA_BLENDING),
+            write_mask: Default::default(),
+        })];
 
         let color_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: None,
@@ -112,7 +117,7 @@ impl QuadRenderer {
                 module: &shader,
                 entry_point: Some("fs_color"),
                 compilation_options: Default::default(),
-                targets: &[Some(config.swapchain_format.into())],
+                targets: &color_targets,
             }),
             primitive: wgpu::PrimitiveState::default(),
             depth_stencil: None,
@@ -135,7 +140,7 @@ impl QuadRenderer {
                 module: &shader,
                 entry_point: Some("fs_texture"),
                 compilation_options: Default::default(),
-                targets: &[Some(config.swapchain_format.into())],
+                targets: &color_targets,
             }),
             primitive: wgpu::PrimitiveState::default(),
             depth_stencil: None,
