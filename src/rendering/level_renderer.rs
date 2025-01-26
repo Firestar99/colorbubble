@@ -13,7 +13,7 @@ use wgpu::{
     Extent3d, RenderPass, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages,
 };
 
-pub const DEBUG_DRAW_LEVEL: bool = true;
+pub const DEBUG_DRAW_LEVEL: bool = false;
 
 pub struct LevelRenderer {
     quad: QuadRenderer,
