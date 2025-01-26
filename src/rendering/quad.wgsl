@@ -48,3 +48,28 @@ fn fs_texture(vertex: VertexOutput) -> @location(0) vec4<f32> {
 	}
 	return color;
 }
+
+
+
+@group(2)
+@binding(0)
+var mask_texture: texture_2d<f32>;
+
+@group(1)
+@binding(1)
+var mask_sampler: sampler;
+
+@fragment
+fn fs_masked(
+	vertex: VertexOutput,
+) -> @location(0) vec4<f32> {
+	var color = textureSample(my_texture, my_sampler, vertex.tex_coord) * vertex.vtx_color;
+	var mask = textureLoad(mask_texture, vec2u(vertex.position.xy), 0).x;
+	if mask < 0.01 {
+		discard;
+	}
+	if color.a < 0.01 {
+		discard;
+	}
+	return color;
+}

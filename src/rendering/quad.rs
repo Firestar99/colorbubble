@@ -51,6 +51,7 @@ pub struct QuadRenderer {
     pub texture_layout: QuadTextureBindGroupLayout,
     color_pipeline: RenderPipeline,
     texture_pipeline: RenderPipeline,
+    masked_pipeline: RenderPipeline,
     index_buffer: Buffer,
 }
 
@@ -135,10 +136,37 @@ impl QuadRenderer {
                     push_constant_ranges: &[],
                 }),
             ),
-            vertex: vertex_state,
+            vertex: vertex_state.clone(),
             fragment: Some(wgpu::FragmentState {
                 module: &shader,
                 entry_point: Some("fs_texture"),
+                compilation_options: Default::default(),
+                targets: &color_targets,
+            }),
+            primitive: wgpu::PrimitiveState::default(),
+            depth_stencil: None,
+            multisample: wgpu::MultisampleState::default(),
+            multiview: None,
+            cache: None,
+        });
+
+        let masked_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+            label: None,
+            layout: Some(
+                &device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+                    label: None,
+                    bind_group_layouts: &[
+                        &frame_data_layout.layout,
+                        &texture_layout.layout,
+                        &texture_layout.layout,
+                    ],
+                    push_constant_ranges: &[],
+                }),
+            ),
+            vertex: vertex_state.clone(),
+            fragment: Some(wgpu::FragmentState {
+                module: &shader,
+                entry_point: Some("fs_masked"),
                 compilation_options: Default::default(),
                 targets: &color_targets,
             }),
@@ -163,6 +191,7 @@ impl QuadRenderer {
             frame_data_layout,
             texture_layout,
             color_pipeline,
+            masked_pipeline,
             texture_pipeline,
             index_buffer,
         }
@@ -187,6 +216,20 @@ impl QuadRenderer {
     ) {
         rpass.set_pipeline(&self.texture_pipeline);
         rpass.set_bind_group(1, Some(&texture.bind), &[]);
+        self.draw_common(rpass, frame_data, vertices);
+    }
+
+    pub fn draw_masked(
+        &self,
+        rpass: &mut RenderPass,
+        frame_data: &FrameDataBinding,
+        vertices: &QuadVertexBuffer,
+        texture: &QuadTexture,
+        mask: &QuadTexture,
+    ) {
+        rpass.set_pipeline(&self.masked_pipeline);
+        rpass.set_bind_group(1, Some(&texture.bind), &[]);
+        rpass.set_bind_group(2, Some(&mask.bind), &[]);
         self.draw_common(rpass, frame_data, vertices);
     }
 

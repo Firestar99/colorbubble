@@ -9,7 +9,9 @@ use rand::{thread_rng, Rng};
 use std::io::Cursor;
 use std::sync::Arc;
 use wgpu::util::{DeviceExt, TextureDataOrder};
-use wgpu::{Extent3d, RenderPass, TextureDescriptor, TextureDimension, TextureUsages};
+use wgpu::{
+    Extent3d, RenderPass, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages,
+};
 
 pub const DEBUG_DRAW_LEVEL: bool = true;
 
@@ -23,6 +25,7 @@ pub struct LoadedLevel {
     level: Arc<Level>,
     vertices: QuadVertexBuffer,
     level_texture: QuadTexture,
+    collision_mask: QuadTexture,
 }
 
 impl LevelRenderer {
@@ -94,36 +97,66 @@ impl LevelRenderer {
         );
 
         let device = &self.quad.config.device;
-        let image = &level.image;
-        let texture_descriptor = TextureDescriptor {
-            label: Some("Quad texture"),
-            size: Extent3d {
-                width: image.width(),
-                height: image.height(),
-                depth_or_array_layers: 1,
-            },
-            mip_level_count: 1,
-            sample_count: 1,
-            dimension: TextureDimension::D2,
-            format: self.quad.config.swapchain_format,
-            usage: TextureUsages::TEXTURE_BINDING | TextureUsages::RENDER_ATTACHMENT,
-            view_formats: &[],
+
+        let level_texture = {
+            let image = &level.image;
+            let texture_descriptor = TextureDescriptor {
+                label: Some("level texture"),
+                size: Extent3d {
+                    width: image.width(),
+                    height: image.height(),
+                    depth_or_array_layers: 1,
+                },
+                mip_level_count: 1,
+                sample_count: 1,
+                dimension: TextureDimension::D2,
+                format: self.quad.config.swapchain_format,
+                usage: TextureUsages::TEXTURE_BINDING | TextureUsages::RENDER_ATTACHMENT,
+                view_formats: &[],
+            };
+            let texture = if DEBUG_DRAW_LEVEL {
+                device.create_texture_with_data(
+                    &self.quad.config.queue,
+                    &texture_descriptor,
+                    TextureDataOrder::MipMajor,
+                    &image.as_raw(),
+                )
+            } else {
+                device.create_texture(&texture_descriptor)
+            };
+            QuadTexture::new(&self.quad.config, &self.quad.texture_layout, texture)
         };
-        let texture = if DEBUG_DRAW_LEVEL {
-            device.create_texture_with_data(
+
+        let collision_mask = {
+            let image = &level.collision_map;
+            let texture_descriptor = TextureDescriptor {
+                label: Some("level collision mask"),
+                size: Extent3d {
+                    width: image.width(),
+                    height: image.height(),
+                    depth_or_array_layers: 1,
+                },
+                mip_level_count: 1,
+                sample_count: 1,
+                dimension: TextureDimension::D2,
+                format: TextureFormat::R8Unorm,
+                usage: TextureUsages::TEXTURE_BINDING,
+                view_formats: &[],
+            };
+            let texture = device.create_texture_with_data(
                 &self.quad.config.queue,
                 &texture_descriptor,
                 TextureDataOrder::MipMajor,
                 &image.as_raw(),
-            )
-        } else {
-            device.create_texture(&texture_descriptor)
+            );
+            QuadTexture::new(&self.quad.config, &self.quad.texture_layout, texture)
         };
-        let texture = QuadTexture::new(&self.quad.config, &self.quad.texture_layout, texture);
+
         self.loaded = Some(LoadedLevel {
             vertices,
             level,
-            level_texture: texture,
+            level_texture,
+            collision_mask,
         });
     }
 
@@ -174,7 +207,7 @@ impl LevelRenderer {
                     let pos = vec2(b.pos.x, VIEWPORT_SIZE.y - b.pos.y);
                     let texture = &self.splashes[rng.gen_range(0..self.splashes.len())];
                     let vtx_color = b.color;
-                    self.quad.draw_texture(
+                    self.quad.draw_masked(
                         &mut rpass,
                         &frame_data,
                         &QuadVertexBuffer::new(
@@ -203,6 +236,7 @@ impl LevelRenderer {
                             ],
                         ),
                         texture,
+                        &loaded.collision_mask,
                     );
                 }
             }
