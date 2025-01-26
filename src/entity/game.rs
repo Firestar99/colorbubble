@@ -1,9 +1,8 @@
 use crate::delta_time::DeltaTime;
 use crate::entity::bubble::Bubble;
 use crate::entity::player::Player;
-use crate::entity::splash::{DespawnedParticle, Splash};
+use crate::entity::splash::Splash;
 use crate::level::Level;
-use glam::Vec3;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -29,7 +28,7 @@ impl Game {
         }
     }
 
-    pub fn update(&mut self, dt: DeltaTime) -> Vec<DespawnedParticle> {
+    pub fn update(&mut self, dt: DeltaTime) -> Vec<Splash> {
         self.time_sum += Duration::from_secs_f32(dt.delta_time);
         let mut despawned_particles = Vec::new();
 
@@ -57,10 +56,7 @@ impl Game {
 
             for i in remove.into_iter().rev() {
                 let particle = self.particles.remove(i);
-                despawned_particles.push(DespawnedParticle {
-                    pos: particle.pos,
-                    color: Vec3::ONE, //todo??
-                });
+                despawned_particles.push(particle);
             }
         }
         despawned_particles

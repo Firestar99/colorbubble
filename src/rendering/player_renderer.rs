@@ -13,6 +13,7 @@ impl PlayerRenderer {
 
     pub fn draw(&self, rpass: &mut RenderPass, frame_data: &FrameDataBinding, player: &Player) {
         let size = vec2(28., 28.);
+        let vtx_color = vec4(1., 1., 1., 1.);
         self.0.draw_color(
             rpass,
             frame_data,
@@ -22,22 +23,22 @@ impl PlayerRenderer {
                     QuadVertex {
                         position: vec2(0., 0.) * size + player.pos,
                         tex_coord: vec2(0., 0.),
-                        vtx_color: vec4(0., 0., 0., 1.),
+                        vtx_color,
                     },
                     QuadVertex {
                         position: vec2(0., 1.) * size + player.pos,
                         tex_coord: vec2(0., 1.),
-                        vtx_color: vec4(0., 1., 0., 1.),
+                        vtx_color,
                     },
                     QuadVertex {
                         position: vec2(1., 0.) * size + player.pos,
                         tex_coord: vec2(1., 0.),
-                        vtx_color: vec4(1., 0., 0., 1.),
+                        vtx_color,
                     },
                     QuadVertex {
                         position: vec2(1., 1.) * size + player.pos,
                         tex_coord: vec2(1., 1.),
-                        vtx_color: vec4(1., 1., 0., 1.),
+                        vtx_color,
                     },
                 ],
             ),

@@ -1,6 +1,7 @@
 use crate::entity::bubble::Bubble;
+use crate::hsv2rgb::hsv2rgb;
 use crate::level::Level;
-use glam::{vec2, Vec2};
+use glam::{vec2, Vec2, Vec3, Vec4};
 use winit::event::{ElementState, KeyEvent};
 use winit::keyboard::{KeyCode, PhysicalKey};
 
@@ -10,11 +11,13 @@ const JUMP_Y: f32 = 18.0;
 const DAMP_X: f32 = 0.8;
 const DAMP_Y: f32 = 1.;
 const BUBBLE_SPAWN_DISTANCE: Vec2 = vec2(10., 0.);
+const HSV_HUE_SPEED: f32 = 0.01;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Player {
     pub pos: Vec2,
     pub vel: Vec2,
+    pub hsv_hue: f32,
 
     on_ground: bool,
     left_pressed: bool,
@@ -32,6 +35,7 @@ impl Player {
         Self {
             pos,
             vel: vec2(0.0, -1.0),
+            hsv_hue: 0.,
             on_ground: false,
             left_pressed: false,
             right_pressed: false,
@@ -41,6 +45,10 @@ impl Player {
             bubble_spawn_pressed: false,
             pointed_right: false,
         }
+    }
+
+    pub fn color(&self) -> Vec4 {
+        Vec4::from((hsv2rgb(Vec3::new(self.hsv_hue, 1., 1.)), 1.))
     }
 
     pub fn handle_key_event(&mut self, event: &KeyEvent) {
@@ -69,6 +77,8 @@ impl Player {
     }
 
     pub fn update(&mut self, level: &Level) -> Option<Bubble> {
+        self.hsv_hue = (self.hsv_hue + HSV_HUE_SPEED) % 1.;
+
         if self.left_pressed {
             self.vel.x = -SPEED_X;
         } else if self.right_pressed {
@@ -85,13 +95,14 @@ impl Player {
 
         let bubble = if self.bubble_spawn_pressed && !self.old_bubble_spawn_pressed {
             Some(Bubble {
-                dead: false,
                 pos: self.pos,
                 vel: if self.pointed_right {
                     vec2(1.0, 0.0)
                 } else {
                     vec2(-1.0, 0.0)
                 } * BUBBLE_SPAWN_DISTANCE,
+                color: self.color(),
+                ..Default::default()
             })
         } else {
             None

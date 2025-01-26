@@ -1,14 +1,15 @@
 use crate::entity::splash::Splash;
 use crate::level::Level;
-use glam::{vec2, Vec2};
+use glam::{vec2, Vec2, Vec4};
 
 const GRAVITY: Vec2 = vec2(0., 0.1);
 const DAMP: Vec2 = vec2(0.95, 0.95);
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Default)]
 pub struct Bubble {
     pub pos: Vec2,
     pub vel: Vec2,
+    pub color: Vec4,
     pub dead: bool,
 }
 
@@ -34,6 +35,7 @@ impl Bubble {
             particles.push(Splash {
                 age: 0,
                 pos: self.pos,
+                color: self.color,
                 vel: Vec2::from_angle(i as f32) * 5.0,
             });
         }

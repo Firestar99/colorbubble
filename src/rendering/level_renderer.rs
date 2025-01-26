@@ -1,4 +1,4 @@
-use crate::entity::splash::DespawnedParticle;
+use crate::entity::splash::Splash;
 use crate::level::Level;
 use crate::rendering::framedata::{FrameData, FrameDataBinding, VIEWPORT_SIZE};
 use crate::rendering::quad::{QuadRenderer, QuadVertex, QuadVertexBuffer};
@@ -138,7 +138,7 @@ impl LevelRenderer {
         }
     }
 
-    pub fn draw_color_splashes(&mut self, bubbles: &[DespawnedParticle]) {
+    pub fn draw_color_splashes(&mut self, bubbles: &[Splash]) {
         if bubbles.is_empty() {
             return;
         }
@@ -173,8 +173,7 @@ impl LevelRenderer {
                     let size = 25.;
                     let pos = vec2(b.pos.x, VIEWPORT_SIZE.y - b.pos.y);
                     let texture = &self.splashes[rng.gen_range(0..self.splashes.len())];
-                    // let vtx_color = Vec4::from((b.color, 1.));
-                    let vtx_color = Vec4::new(0., 1., 0.5, 1.);
+                    let vtx_color = b.color;
                     self.quad.draw_texture(
                         &mut rpass,
                         &frame_data,

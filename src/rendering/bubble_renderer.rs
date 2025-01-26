@@ -2,7 +2,7 @@ use super::quad_texture::QuadTexture;
 use crate::entity::bubble::Bubble;
 use crate::rendering::framedata::FrameDataBinding;
 use crate::rendering::quad::{QuadRenderer, QuadVertex, QuadVertexBuffer};
-use glam::{vec2, Vec4};
+use glam::vec2;
 use wgpu::RenderPass;
 
 pub struct BubbleRenderer {
@@ -29,7 +29,7 @@ impl BubbleRenderer {
                 .iter()
                 .flat_map(|splash| {
                     let size = vec2(28., 28.);
-                    let vtx_color = Vec4::splat(1.); // todo
+                    let vtx_color = splash.color;
                     [
                         QuadVertex {
                             position: vec2(0., 0.) * size + splash.pos,
