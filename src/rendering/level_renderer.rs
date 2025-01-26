@@ -3,8 +3,9 @@ use crate::level::Level;
 use crate::rendering::framedata::{FrameData, FrameDataBinding, VIEWPORT_SIZE};
 use crate::rendering::quad::{QuadRenderer, QuadVertex, QuadVertexBuffer};
 use crate::rendering::quad_texture::QuadTexture;
-use glam::{vec2, vec4, Vec2, Vec4};
+use glam::{vec2, vec4, Mat2, Vec2, Vec4};
 use image::{ImageFormat, ImageReader};
+use rand::distributions::Open01;
 use rand::{thread_rng, Rng};
 use std::io::Cursor;
 use std::sync::Arc;
@@ -203,10 +204,11 @@ impl LevelRenderer {
 
                 let mut rng = thread_rng();
                 for b in bubbles {
-                    let size = 25.;
+                    let size = 20. + 10. * rng.sample::<f32, _>(Open01);
                     let pos = vec2(b.pos.x, VIEWPORT_SIZE.y - b.pos.y);
                     let texture = &self.splashes[rng.gen_range(0..self.splashes.len())];
                     let vtx_color = b.color;
+                    let rot = Mat2::from_angle(rng.sample(Open01));
                     self.quad.draw_masked(
                         &mut rpass,
                         &frame_data,
@@ -214,22 +216,22 @@ impl LevelRenderer {
                             &self.quad.config,
                             &[
                                 QuadVertex {
-                                    position: vec2(-1., -1.) * size + pos,
+                                    position: rot * vec2(-1., -1.) * size + pos,
                                     tex_coord: vec2(0., 0.),
                                     vtx_color,
                                 },
                                 QuadVertex {
-                                    position: vec2(-1., 1.) * size + pos,
+                                    position: rot * vec2(-1., 1.) * size + pos,
                                     tex_coord: vec2(0., 1.),
                                     vtx_color,
                                 },
                                 QuadVertex {
-                                    position: vec2(1., -1.) * size + pos,
+                                    position: rot * vec2(1., -1.) * size + pos,
                                     tex_coord: vec2(1., 0.),
                                     vtx_color,
                                 },
                                 QuadVertex {
-                                    position: vec2(1., 1.) * size + pos,
+                                    position: rot * vec2(1., 1.) * size + pos,
                                     tex_coord: vec2(1., 1.),
                                     vtx_color,
                                 },
