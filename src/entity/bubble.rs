@@ -1,4 +1,4 @@
-use crate::entity::splash::Particle;
+use crate::entity::splash::Splash;
 use crate::level::Level;
 use glam::{vec2, Vec2};
 
@@ -13,7 +13,7 @@ pub struct Bubble {
 }
 
 impl Bubble {
-    pub fn update(&mut self, level: &Level, particles: &mut Vec<Particle>) {
+    pub fn update(&mut self, level: &Level, particles: &mut Vec<Splash>) {
         self.vel *= DAMP;
         self.vel += GRAVITY;
         let new_pos = self.pos + self.vel;
@@ -24,14 +24,14 @@ impl Bubble {
         }
     }
 
-    pub fn pop(&mut self, particles: &mut Vec<Particle>) {
+    pub fn pop(&mut self, particles: &mut Vec<Splash>) {
         if self.dead {
             return;
         }
 
         self.dead = true;
         for i in 0..10 {
-            particles.push(Particle {
+            particles.push(Splash {
                 age: 0,
                 pos: self.pos,
                 vel: Vec2::from_angle(i as f32) * 5.0,

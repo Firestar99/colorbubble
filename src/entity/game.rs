@@ -1,7 +1,7 @@
 use crate::delta_time::DeltaTime;
 use crate::entity::bubble::Bubble;
 use crate::entity::player::Player;
-use crate::entity::splash::{DespawnedParticle, Particle};
+use crate::entity::splash::{DespawnedParticle, Splash};
 use crate::level::Level;
 use glam::Vec3;
 use std::sync::Arc;
@@ -14,7 +14,7 @@ pub struct Game {
     pub level: Arc<Level>,
     pub player: Player,
     pub player_bubble: Option<Bubble>,
-    pub particles: Vec<Particle>,
+    pub particles: Vec<Splash>,
     pub time_sum: Duration,
 }
 

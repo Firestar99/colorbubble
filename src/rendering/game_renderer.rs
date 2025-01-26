@@ -1,6 +1,8 @@
-use super::particle_renderer::ParticleRenderer;
+use super::splash_renderer::SplashRenderer;
+use crate::entity::bubble::Bubble;
 use crate::entity::player::Player;
-use crate::main_loop::ParticleRenderData;
+use crate::entity::splash::Splash;
+use crate::rendering::bubble_renderer::BubbleRenderer;
 use crate::rendering::framedata::{
     get_viewport, FrameData, FrameDataBindGroupLayout, VIEWPORT_SIZE,
 };
@@ -21,7 +23,8 @@ pub struct GameRenderer {
     pub config: RenderConfig,
     pub quad: QuadRenderer,
     pub player: PlayerRenderer,
-    pub particle: ParticleRenderer,
+    pub splash: SplashRenderer,
+    pub bubble: BubbleRenderer,
     pub level: LevelRenderer,
 }
 
@@ -33,7 +36,8 @@ impl GameRenderer {
         Ok(Self {
             player: PlayerRenderer::new(quad.clone()),
             level: LevelRenderer::new(quad.clone())?,
-            particle: ParticleRenderer::new(quad.clone()),
+            splash: SplashRenderer::new(quad.clone()),
+            bubble: BubbleRenderer::new(quad.clone()),
             quad,
             config: config.clone(),
         })
@@ -42,7 +46,8 @@ impl GameRenderer {
     pub fn draw<'a>(
         &self,
         player: &Player,
-        particles: impl Iterator<Item = ParticleRenderData<'a>>,
+        bubbles: &[Bubble],
+        splashes: &[Splash],
         output: TextureView,
     ) {
         let device = &self.config.device;
@@ -70,9 +75,8 @@ impl GameRenderer {
             });
             self.level.draw(&mut rpass, &frame_data);
             self.player.draw(&mut rpass, &frame_data, player);
-            for particle in particles {
-                self.particle.draw(&mut rpass, &frame_data, particle);
-            }
+            self.splash.draw(&mut rpass, &frame_data, splashes);
+            self.bubble.draw(&mut rpass, &frame_data, bubbles);
         }
 
         self.config.queue.submit(Some(encoder.finish()));

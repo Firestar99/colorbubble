@@ -10,7 +10,7 @@ use wgpu::{
     VertexBufferLayout, VertexFormat, VertexStepMode,
 };
 
-pub const MAX_QUADS_PER_DRAW: u32 = 64;
+pub const MAX_QUADS_PER_DRAW: u32 = 1024;
 
 #[derive(Debug, Copy, Clone, Zeroable, Pod)]
 #[repr(C)]
@@ -55,6 +55,11 @@ pub struct QuadRenderer {
 }
 
 impl QuadRenderer {
+    pub fn load_texture(&self, path: &str) -> QuadTexture {
+        let image = image::open(path).unwrap();
+        QuadTexture::upload(&self.config, &self.texture_layout, &image.to_rgba8())
+    }
+
     pub fn new(
         config: &RenderConfig,
         frame_data_layout: FrameDataBindGroupLayout,
@@ -140,7 +145,7 @@ impl QuadRenderer {
         });
 
         let indices = (0..MAX_QUADS_PER_DRAW)
-            .flat_map(|q| [0, 1, 2, 2, 1, 3].map(|i| i + q as u16))
+            .flat_map(|q| [0, 1, 2, 2, 1, 3].map(|i| i + (q as u16 * 4)))
             .collect::<Vec<_>>();
         let index_buffer = device.create_buffer_init(&BufferInitDescriptor {
             label: Some("global index buffer"),

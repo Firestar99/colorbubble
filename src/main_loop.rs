@@ -2,18 +2,12 @@ use crate::delta_time::DeltaTimer;
 use crate::entity::game::Game;
 use crate::level::Level;
 use crate::rendering::game_renderer::{GameRenderer, RenderConfig};
-use crate::rendering::quad_texture::QuadTexture;
 use anyhow::Context;
-use glam::Vec2;
 use winit::event::{Event, WindowEvent};
 use winit::event_loop::EventLoop;
 use winit::keyboard::{KeyCode, PhysicalKey};
 use winit::window::Window;
 
-pub struct ParticleRenderData<'a> {
-    pub pos: Vec2,
-    pub img: &'a QuadTexture,
-}
 pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()> {
     let levels = Level::load_file_tree()?;
     let current_level_idx = 1;
@@ -63,8 +57,6 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
         swapchain_format: surface.get_capabilities(&adapter).formats[0],
     })?;
     renderer.level.load_level(level.clone());
-    let bubble_texture = renderer.particle.load_texture("assets/bubble.png");
-    let particle_texture = renderer.particle.load_texture("assets/Splash.png");
 
     let mut game = Game::new(level.clone());
 
@@ -108,16 +100,8 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
                     .create_view(&wgpu::TextureViewDescriptor::default());
                 renderer.draw(
                     &game.player,
-                    game.player_bubble
-                        .iter()
-                        .map(|bubble| ParticleRenderData {
-                            pos: bubble.pos,
-                            img: &bubble_texture,
-                        })
-                        .chain(game.particles.iter().map(|particle| ParticleRenderData {
-                            pos: particle.pos,
-                            img: &particle_texture,
-                        })),
+                    game.player_bubble.as_slice(),
+                    &game.particles,
                     view,
                 );
                 frame.present();
