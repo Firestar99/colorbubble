@@ -2,6 +2,7 @@ use crate::rendering::framedata::{FrameDataBindGroupLayout, FrameDataBinding};
 use crate::rendering::game_renderer::RenderConfig;
 use crate::rendering::quad_texture::{QuadTexture, QuadTextureBindGroupLayout};
 use bytemuck::{Pod, Zeroable};
+use image::ImageFormat;
 use std::borrow::Cow;
 use std::mem::offset_of;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
@@ -56,8 +57,8 @@ pub struct QuadRenderer {
 }
 
 impl QuadRenderer {
-    pub fn load_texture(&self, path: &str) -> QuadTexture {
-        let image = image::open(path).unwrap();
+    pub fn load_texture(&self, bytes: &[u8]) -> QuadTexture {
+        let image = image::load_from_memory_with_format(bytes, ImageFormat::Png).unwrap();
         QuadTexture::upload(&self.config, &self.texture_layout, &image.to_rgba8())
     }
 
