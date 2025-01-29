@@ -46,7 +46,7 @@ impl Player {
             jump_pressed: false,
             old_bubble_spawn_pressed: false,
             bubble_spawn_pressed: false,
-            pointed_right: false,
+            pointed_right: true,
         }
     }
 
