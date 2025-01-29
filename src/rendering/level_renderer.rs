@@ -34,17 +34,17 @@ impl LevelRenderer {
         let splashes = [
             include_bytes!(concat!(
                 env!("CARGO_MANIFEST_DIR"),
-                "/textures/colorsplash/1.png"
+                "/assets/colorsplash/1.png"
             ))
             .as_slice(),
             include_bytes!(concat!(
                 env!("CARGO_MANIFEST_DIR"),
-                "/textures/colorsplash/2.png"
+                "/assets/colorsplash/2.png"
             ))
             .as_slice(),
             include_bytes!(concat!(
                 env!("CARGO_MANIFEST_DIR"),
-                "/textures/colorsplash/3.png"
+                "/assets/colorsplash/3.png"
             ))
             .as_slice(),
         ];
