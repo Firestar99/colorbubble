@@ -13,7 +13,10 @@ pub struct BubbleRenderer {
 impl BubbleRenderer {
     pub fn new(quad: QuadRenderer) -> Self {
         Self {
-            splash_texture: quad.load_texture("assets/bubble.png"),
+            splash_texture: quad.load_texture(
+                include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/assets/bubble.png"))
+                    .as_slice(),
+            ),
             quad,
         }
     }

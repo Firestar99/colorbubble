@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ColorBubble</title>
+	<style>
+		canvas {
+			background-color: black;
+		}
+	</style>
+</head>
+
+<body id="wasm-example">
+<script type="module">
+	import init from "./pkg/colorbubble.js";
+	init().then(() => {
+		console.log("WASM Loaded");
+	});
+</script>
+
+<div>
+	A Platformer with invisible platforms, use bubbles to splatter color everywhere and reveal them!<br>
+	<br>
+	* WASD / Arrow Keys / Space to move<br>
+	* Shift / E / Q to create bubbles<br>
+	<br>
+	Created by <a href="https://github.com/Firestar99">Firestar99</a> and <a href="https://github.com/Friz64">Friz64</a>
+	during the <a href="https://globalgamejam.org/games/2025/coloorbubble-2-0">Global Game Jam 2025</a>, see
+	<a href="https://github.com/Firestar99/colorbubble">Repository</a> for more details.
+	<br>
+</div>
+</body>
+
+</html>

@@ -1,8 +1,7 @@
 use bevy_math::{Rect, URect};
 use glam::{uvec2, IVec2, UVec2};
-use image::{GrayImage, ImageReader, Luma, Rgba, RgbaImage};
-use std::fs;
-use std::path::Path;
+use image::{GrayImage, ImageFormat, ImageReader, Luma, Rgba, RgbaImage};
+use std::io::Cursor;
 use std::sync::Arc;
 
 const ENTRY_POINT: Rgba<u8> = Rgba([0, 99, 0, 255]);
@@ -24,8 +23,11 @@ pub struct Level {
 }
 
 impl Level {
-    pub fn load_from_file(path: &Path) -> anyhow::Result<Arc<Level>> {
-        let image = ImageReader::open(path)?.decode()?.flipv().into_rgba8();
+    pub fn load_from_binary(bytes: &[u8]) -> anyhow::Result<Arc<Level>> {
+        let image = ImageReader::with_format(Cursor::new(bytes), ImageFormat::Png)
+            .decode()?
+            .flipv()
+            .into_rgba8();
 
         let mut collision_map = GrayImage::new(image.width(), image.height());
         let mut entry_point = UVec2::ZERO;
@@ -56,12 +58,25 @@ impl Level {
     }
 
     pub fn load_file_tree() -> anyhow::Result<Vec<Arc<Level>>> {
-        let mut levl_prths: Vec<_> = fs::read_dir("levels")?.map(|e| e.unwrap().path()).collect();
-        levl_prths.sort();
-        levl_prths
-            .iter()
-            .map(|a| Self::load_from_file(a))
-            .collect::<Result<Vec<_>, _>>()
+        [
+            include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/levels/Lvl01.png")).as_slice(),
+            include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/levels/Lvl02.png")).as_slice(),
+            include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/levels/Lvl03.png")).as_slice(),
+            include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/levels/Lvl04.png")).as_slice(),
+            include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/levels/Lvl05.png")).as_slice(),
+            include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/levels/Lvl06.png")).as_slice(),
+            include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/levels/Lvl07.png")).as_slice(),
+            include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/levels/Lvl08.png")).as_slice(),
+            include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/levels/Lvl09.png")).as_slice(),
+            include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/levels/Lvl10.png")).as_slice(),
+            include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/levels/Lvl11.png")).as_slice(),
+            include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/levels/Lvl12.png")).as_slice(),
+            include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/levels/Lvl13.png")).as_slice(),
+            include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/levels/Lvl14.png")).as_slice(),
+        ]
+        .iter()
+        .map(|a| Self::load_from_binary(a))
+        .collect::<Result<Vec<_>, _>>()
     }
 
     pub fn collision_rect(&self, rect: Rect) -> bool {

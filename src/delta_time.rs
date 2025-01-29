@@ -1,6 +1,6 @@
 use std::mem::replace;
 use std::ops::Deref;
-use std::time::Instant;
+use web_time::Instant;
 
 #[derive(Copy, Clone, Debug, Default)]
 pub struct DeltaTime {

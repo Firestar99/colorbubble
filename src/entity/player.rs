@@ -46,7 +46,7 @@ impl Player {
             jump_pressed: false,
             old_bubble_spawn_pressed: false,
             bubble_spawn_pressed: false,
-            pointed_right: false,
+            pointed_right: true,
         }
     }
 
@@ -57,23 +57,28 @@ impl Player {
     pub fn handle_key_event(&mut self, event: &KeyEvent) {
         let pressed = event.state == ElementState::Pressed;
         match event.physical_key {
-            PhysicalKey::Code(KeyCode::KeyA) => {
+            PhysicalKey::Code(KeyCode::KeyA | KeyCode::ArrowLeft) => {
                 self.left_pressed = pressed;
                 if pressed {
                     self.pointed_right = false;
                 }
             }
-            PhysicalKey::Code(KeyCode::KeyD) => {
+            PhysicalKey::Code(KeyCode::KeyD | KeyCode::ArrowRight) => {
                 self.right_pressed = pressed;
                 if pressed {
                     self.pointed_right = true;
                 }
             }
-            PhysicalKey::Code(KeyCode::Space) => {
+            PhysicalKey::Code(KeyCode::Space | KeyCode::KeyW | KeyCode::ArrowUp) => {
                 self.jump_pressed = pressed;
             }
             PhysicalKey::Code(
-                KeyCode::ShiftLeft | KeyCode::ShiftRight | KeyCode::KeyE | KeyCode::KeyQ,
+                KeyCode::ShiftLeft
+                | KeyCode::ShiftRight
+                | KeyCode::KeyE
+                | KeyCode::KeyQ
+                | KeyCode::ArrowDown
+                | KeyCode::KeyS,
             ) => {
                 self.bubble_spawn_pressed = pressed;
             }
