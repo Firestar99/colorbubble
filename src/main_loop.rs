@@ -28,17 +28,15 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
 
     // Create the logical device and command queue
     let (device, queue) = adapter
-        .request_device(
-            &wgpu::DeviceDescriptor {
-                label: None,
-                required_features: wgpu::Features::empty(),
-                // Make sure we use the texture resolution limits from the adapter, so we can support images the size of the swapchain.
-                required_limits: wgpu::Limits::downlevel_webgl2_defaults()
-                    .using_resolution(adapter.limits()),
-                memory_hints: wgpu::MemoryHints::MemoryUsage,
-            },
-            None,
-        )
+        .request_device(&wgpu::DeviceDescriptor {
+            label: None,
+            required_features: wgpu::Features::empty(),
+            // Make sure we use the texture resolution limits from the adapter, so we can support images the size of the swapchain.
+            required_limits: wgpu::Limits::downlevel_webgl2_defaults()
+                .using_resolution(adapter.limits()),
+            memory_hints: wgpu::MemoryHints::MemoryUsage,
+            trace: Default::default(),
+        })
         .await
         .context("Failed to create device")?;
 
@@ -61,6 +59,7 @@ pub async fn run(event_loop: EventLoop<()>, window: Window) -> anyhow::Result<()
     renderer.level.load_level(game.level.clone());
 
     let mut delta_timer = DeltaTimer::default();
+    #[expect(deprecated)]
     event_loop.run(|event, target| match event {
         Event::WindowEvent {
             ref event,
