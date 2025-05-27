@@ -27,7 +27,7 @@ web-time = "1.1.0"
 env_logger = "0.11.6"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-getrandom = { version = "0.2", features = ["js"] }
+getrandom = { version = "0.3.3", features = ["wasm_js"] }
 console_error_panic_hook = "0.1.6"
 console_log = "1.0"
 wasm-bindgen = "0.2"
