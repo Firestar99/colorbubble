@@ -2,7 +2,7 @@ use crate::entity::bubble::Bubble;
 use crate::entity::splash::Splash;
 use crate::hsv2rgb::hsv2rgb;
 use crate::level::Level;
-use glam::{vec2, Vec2, Vec3, Vec4};
+use glam::{Vec2, Vec3, Vec4, vec2};
 use winit::event::{ElementState, KeyEvent};
 use winit::keyboard::{KeyCode, PhysicalKey};
 
