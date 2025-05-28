@@ -1,3 +1,11 @@
+# Cargo gpu experiment ground
+
+See [build script](./build.rs) for how cargo gpu may be used to:
+* install the correct toolchain and `rustc_codegen_spirv`
+* compile shader crates
+* transpile them to wgsl using naga
+* all while you can build the rest of the project on stable!
+
 # Colorbubble
 
 [![](docs/colorsplash.jpg)](http://firestar99.github.io/colorbubble)
