@@ -70,7 +70,9 @@ impl QuadRenderer {
         let device = &config.device;
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: None,
-            source: wgpu::ShaderSource::Wgsl(Cow::Borrowed(include_str!("quad.wgsl"))),
+            source: wgpu::ShaderSource::Wgsl(Cow::Borrowed(include_str!(env!(
+                "COLORBUBBLE_WGSL_SHADER_PATH"
+            )))),
         });
 
         let vertex_state = wgpu::VertexState {
