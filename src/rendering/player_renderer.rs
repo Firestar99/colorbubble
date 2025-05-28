@@ -25,22 +25,22 @@ impl PlayerRenderer {
                 &self.0.config,
                 &[
                     QuadVertex {
-                        position: vec2(0., 0.) * size + player.pos,
+                        position: vec2(-0.5, 0.) * size + player.pos,
                         tex_coord: vec2(0., 0.),
                         vtx_color,
                     },
                     QuadVertex {
-                        position: vec2(0., 1.) * size + player.pos,
+                        position: vec2(-0.5, 1.) * size + player.pos,
                         tex_coord: vec2(0., 1.),
                         vtx_color,
                     },
                     QuadVertex {
-                        position: vec2(1., 0.) * size + player.pos,
+                        position: vec2(0.5, 0.) * size + player.pos,
                         tex_coord: vec2(1., 0.),
                         vtx_color,
                     },
                     QuadVertex {
-                        position: vec2(1., 1.) * size + player.pos,
+                        position: vec2(0.5, 1.) * size + player.pos,
                         tex_coord: vec2(1., 1.),
                         vtx_color,
                     },
