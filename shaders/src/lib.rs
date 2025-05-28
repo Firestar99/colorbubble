@@ -21,11 +21,13 @@ pub fn vs_main(
 ) {
     *vtx_tex_coord = tex_coord;
     *vtx_color = color;
-    *gl_position = Vec4::from((
+    let mut position = Vec4::from((
         position * frame_data.viewport.zw() + frame_data.viewport.xy(),
         0.,
         1.,
     ));
+    position.y = -position.y;
+    *gl_position = position;
 }
 
 #[spirv(fragment)]
