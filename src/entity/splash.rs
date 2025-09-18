@@ -1,5 +1,5 @@
 use crate::level::Level;
-use glam::{vec2, Vec2, Vec4};
+use glam::{Vec2, Vec4, vec2};
 use std::f32::consts::E;
 
 const GRAVITY: Vec2 = vec2(0., -0.25);

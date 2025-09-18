@@ -3,10 +3,10 @@ use crate::level::Level;
 use crate::rendering::framedata::{FrameData, FrameDataBinding};
 use crate::rendering::quad::{QuadRenderer, QuadVertex, QuadVertexBuffer};
 use crate::rendering::quad_texture::QuadTexture;
-use glam::{vec2, vec4, Mat2, Vec2, Vec4};
+use glam::{Mat2, Vec2, Vec4, vec2, vec4};
 use image::{ImageFormat, ImageReader};
-use rand::distributions::Open01;
-use rand::{thread_rng, Rng};
+use rand::distr::Open01;
+use rand::{Rng, rng};
 use std::io::Cursor;
 use std::sync::Arc;
 use wgpu::util::{DeviceExt, TextureDataOrder};
@@ -202,11 +202,11 @@ impl LevelRenderer {
                     viewport: Vec4::from((Vec2::NEG_ONE, 1. / loaded.level.size.as_vec2() * 2.)),
                 });
 
-                let mut rng = thread_rng();
+                let mut rng = rng();
                 for b in bubbles {
                     let size = 20. + 10. * rng.sample::<f32, _>(Open01);
                     let pos = vec2(b.pos.x, loaded.level.size.y as f32 - b.pos.y);
-                    let texture = &self.splashes[rng.gen_range(0..self.splashes.len())];
+                    let texture = &self.splashes[rng.random_range(0..self.splashes.len())];
                     let vtx_color = b.color;
                     let rot = Mat2::from_angle(rng.sample(Open01));
                     self.quad.draw_masked(

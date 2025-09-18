@@ -2,7 +2,7 @@ use super::quad_texture::QuadTexture;
 use crate::entity::splash::Splash;
 use crate::rendering::framedata::FrameDataBinding;
 use crate::rendering::quad::{QuadRenderer, QuadVertex, QuadVertexBuffer};
-use glam::{vec2, Mat2};
+use glam::{Mat2, vec2};
 use wgpu::RenderPass;
 
 pub struct SplashRenderer {

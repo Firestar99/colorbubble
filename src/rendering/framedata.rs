@@ -1,6 +1,6 @@
 use crate::rendering::game_renderer::RenderConfig;
 use bytemuck::{Pod, Zeroable};
-use glam::{vec2, UVec2, Vec2, Vec4};
+use glam::{UVec2, Vec2, Vec4, vec2};
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
 use wgpu::{
     BindGroup, BindGroupDescriptor, BindGroupEntry, BindGroupLayout, BindGroupLayoutDescriptor,

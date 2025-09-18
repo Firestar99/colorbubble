@@ -1,7 +1,7 @@
 use super::splash_renderer::SplashRenderer;
 use crate::entity::game::Game;
 use crate::rendering::bubble_renderer::BubbleRenderer;
-use crate::rendering::framedata::{get_viewport, FrameData, FrameDataBindGroupLayout};
+use crate::rendering::framedata::{FrameData, FrameDataBindGroupLayout, get_viewport};
 use crate::rendering::level_renderer::LevelRenderer;
 use crate::rendering::player_renderer::PlayerRenderer;
 use crate::rendering::quad::QuadRenderer;

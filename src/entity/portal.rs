@@ -1,7 +1,7 @@
 use crate::entity::player::Player;
 use crate::rendering::framedata::FrameDataBinding;
 use crate::rendering::quad::{QuadRenderer, QuadVertex, QuadVertexBuffer};
-use glam::{vec2, Vec2, Vec4};
+use glam::{Vec2, Vec4, vec2};
 use wgpu::RenderPass;
 
 #[derive(Debug, Copy, Clone)]

@@ -1,5 +1,5 @@
 use bevy_math::{Rect, URect};
-use glam::{uvec2, IVec2, UVec2};
+use glam::{IVec2, UVec2, uvec2};
 use image::{GrayImage, ImageFormat, ImageReader, Luma, Rgba, RgbaImage};
 use std::io::Cursor;
 use std::sync::Arc;
