@@ -1989,6 +1989,7 @@ dependencies = [
  "arrayvec",
  "ash",
  "bitflags 2.8.0",
+ "block",
  "bytemuck",
  "cfg_aliases 0.2.1",
  "core-graphics-types",

@@ -12,7 +12,7 @@ webgl = ["wgpu/webgl"]
 webgpu = ["wgpu/webgpu"]
 
 [dependencies]
-wgpu = { version = "24.0.1", default-features = false, features = ["webgl", "wgsl", "fragile-send-sync-non-atomic-wasm"] }
+wgpu = { version = "24.0.1", default-features = false, features = ["webgl", "wgsl", "metal", "fragile-send-sync-non-atomic-wasm"] }
 winit = "0.29.15"
 pollster = "0.4.0"
 bytemuck = { version = "1.21.0", features = ["derive"] }
