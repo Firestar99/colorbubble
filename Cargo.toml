@@ -1,3 +1,6 @@
+[workspace]
+members = ["shaders"]
+
 [package]
 name = "colorbubble"
 version = "0.1.0"
@@ -33,6 +36,11 @@ console_log = "1.0"
 wasm-bindgen = "0.2"
 wasm-bindgen-futures = "0.4.30"
 web-sys = { version = "0.3", features = ["Document", "Window", "Element"] }
+
+[build-dependencies]
+# cargo gpu branch naga2 https://github.com/Rust-GPU/cargo-gpu/pull/100
+cargo-gpu = { git = "https://github.com/rust-gpu/cargo-gpu", rev = "a206fb78488ba6251145488ba92023dcf3e3d212" }
+env_logger = "0.11.8"
 
 # Enable a small amount of optimization in the dev profile.
 [profile.dev]
