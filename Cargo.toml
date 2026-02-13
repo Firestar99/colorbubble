@@ -39,7 +39,7 @@ web-sys = { version = "0.3", features = ["Document", "Window", "Element"] }
 
 [build-dependencies]
 # cargo gpu branch naga2 https://github.com/Rust-GPU/cargo-gpu/pull/100
-cargo-gpu = { git = "https://github.com/rust-gpu/cargo-gpu", rev = "a206fb78488ba6251145488ba92023dcf3e3d212" }
+cargo-gpu-install = { git = "https://github.com/rust-gpu/cargo-gpu", rev = "e87c3d7021874ac4b95a1dcb14fc267d21c9f224" }
 env_logger = "0.11.8"
 
 # Enable a small amount of optimization in the dev profile.
