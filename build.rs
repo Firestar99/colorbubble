@@ -1,4 +1,4 @@
-use cargo_gpu::spirv_builder::{MetadataPrintout, SpirvMetadata};
+use cargo_gpu_install::install::Install;
 use std::path::PathBuf;
 
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -7,12 +7,12 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let shader_crate = PathBuf::from("./shaders");
 
     // install the toolchain and build the `rustc_codegen_spirv` codegen backend with it
-    let backend = cargo_gpu::Install::from_shader_crate(shader_crate.clone()).run()?;
+    let backend = Install::from_shader_crate(shader_crate.clone()).run()?;
 
     // build the shader crate
     let mut builder = backend.to_spirv_builder(shader_crate, "spirv-unknown-naga-wgsl");
-    builder.print_metadata = MetadataPrintout::DependencyOnly;
-    builder.spirv_metadata = SpirvMetadata::Full;
+    builder.build_script.defaults = true;
+    builder.build_script.env_shader_spv_path = Some(true);
     let wgsl_result = builder.build()?;
     let path_to_spv = wgsl_result.module.unwrap_single();
 
