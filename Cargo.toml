@@ -19,10 +19,10 @@ wgpu = { version = "25.0.2", default-features = false, features = ["vulkan", "we
 winit = "0.30.11"
 pollster = "0.4.0"
 bytemuck = { version = "1.21.0", features = ["derive"] }
-glam = { version = "0.30.10", features = ["bytemuck"] }
+glam = { version = "0.33.8", features = ["bytemuck"] }
 anyhow = "1.0.95"
 image = { version = "0.25.5", default-features = false, features = ["png"] }
-bevy_math = { version = "0.18.0", default-features = false, features = ["std"] }
+bevy_math = { version = "0.20.0-rc.2", default-features = false, features = ["std"] }
 rand = { version = "0.9.1" }
 web-time = "1.1.0"
 
@@ -38,7 +38,7 @@ wasm-bindgen-futures = "0.4.30"
 web-sys = { version = "0.3", features = ["Document", "Window", "Element"] }
 
 [build-dependencies]
-cargo-gpu-install = { version = "0.10.0-alpha.1" }
+cargo-gpu-install = { version = "0.10.0" }
 env_logger = "0.11.8"
 
 # Enable a small amount of optimization in the dev profile.

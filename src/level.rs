@@ -82,7 +82,7 @@ impl Level {
     pub fn collision_rect(&self, rect: Rect) -> bool {
         self.collision_rectu(URect::from_corners(
             rect.min.as_uvec2(),
-            rect.max.as_uvec2() + UVec2::new(1, 1),
+            rect.max.as_uvec2() + bevy_math::UVec2::new(1, 1),
         ))
     }
 

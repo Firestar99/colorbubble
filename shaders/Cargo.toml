@@ -8,8 +8,8 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 # rust-gpu branch naga https://github.com/Rust-GPU/rust-gpu/pull/280
-spirv-std = { version = "0.10.0-alpha.1", features = ["bytemuck"] }
-glam = { version = "0.30.10", default-features = false }
+spirv-std = { version = "0.10.0", features = ["bytemuck"] }
+glam = { version = "0.33.8", default-features = false }
 
 [lints.rust]
 unexpected_cfgs = { level = "allow", check-cfg = ['cfg(target_arch, values("spirv"))'] }
