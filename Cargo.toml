@@ -38,8 +38,7 @@ wasm-bindgen-futures = "0.4.30"
 web-sys = { version = "0.3", features = ["Document", "Window", "Element"] }
 
 [build-dependencies]
-# cargo gpu branch naga2 https://github.com/Rust-GPU/cargo-gpu/pull/100
-cargo-gpu-install = { git = "https://github.com/rust-gpu/cargo-gpu", rev = "f2f9ec684500928c74f6e78406997938db8f57ff" }
+cargo-gpu-install = { version = "0.10.0-alpha.1" }
 env_logger = "0.11.8"
 
 # Enable a small amount of optimization in the dev profile.
